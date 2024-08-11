@@ -1,0 +1,5 @@
+.venv
+database.db
+.env
+.vscode
+*.pyc
