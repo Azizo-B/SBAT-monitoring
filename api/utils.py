@@ -11,8 +11,8 @@ from .database import add_date, get_notified_dates, set_date_status
 
 TELEGRAM_BOT_TOKEN: str | None = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID: str | None = os.getenv("CHAT_ID")
-AUTH_URL: str | None = os.getenv("AUTH_URL")
-CHECK_URL: str | None = os.getenv("CHECK_URL")
+AUTH_URL = "https://api.rijbewijs.sbat.be/praktijk/api/user/authenticate"
+CHECK_URL = "https://api.rijbewijs.sbat.be/praktijk/api/exam/available"
 
 STANDARD_HEADERS: dict[str, str] = {
     "Cache-Control": "no-cache",
@@ -49,12 +49,13 @@ async def check_for_dates(db: Session) -> NoReturn:
             headers=headers,
             json={
                 "examCenterId": 1,
-                "licenseType": "B",
+                "licenseType": "AM",
                 "examType": "E2",
                 "startDate": datetime.combine(datetime.now().date(), datetime.min.time()).isoformat(),
             },
             timeout=1000,
         )
+
         if response.status_code == 200:
             data: dict = response.json()
 
@@ -78,7 +79,9 @@ def update_dates(db: Session, dates: list[dict], notified_dates: set) -> None:
         current_dates.add(exam_id)
 
         if exam_id not in notified_dates:
-            message += f"Date: {start_time.date()} Time: {start_time.time()} - {end_time.time()}\n\n"
+            new_date_messag: str = f"Date: {start_time.date()} Time: {start_time.time()} - {end_time.time()}\n"
+            if new_date_messag not in message:
+                message += new_date_messag
             add_date(db, date, status="notified")
 
     if message:
