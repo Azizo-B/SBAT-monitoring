@@ -10,7 +10,6 @@ from typing import NoReturn
 
 import requests
 from google.cloud import storage
-from google.oauth2 import service_account
 from sqlalchemy.orm.session import Session
 
 from .database import (
@@ -23,9 +22,9 @@ from .database import (
     set_first_taken_at,
 )
 
-DATABASE_FILE = "/tmp/sbat.db"  # Local path where the SQLite database will be stored
-BUCKET_NAME = "your-bucket-name"  # Replace with your GCS bucket name
-BLOB_NAME = "sbat.db"  # The name of the file in your GCS bucket
+DATABASE_FILE: str | None = os.getenv("DATABASE_FILE")
+BUCKET_NAME: str | None = os.getenv("BUCKET_NAME")
+BLOB_NAME: str | None = os.getenv("BLOB_NAME")
 
 TELEGRAM_BOT_TOKEN: str | None = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID: str | None = os.getenv("CHAT_ID")
@@ -36,7 +35,7 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 AUTH_URL = "https://api.rijbewijs.sbat.be/praktijk/api/user/authenticate"
 CHECK_URL = "https://api.rijbewijs.sbat.be/praktijk/api/exam/available"
 LICENSETYPE = "B"
-TIME_BETWEEN_REQUESTS = 600
+TIME_BETWEEN_REQUESTS: int = int(os.getenv("TIME_BETWEEN_REQUESTS", "600"))
 
 STANDARD_HEADERS: dict[str, str] = {
     "Cache-Control": "no-cache",
@@ -169,23 +168,17 @@ key_path: str | None = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
 def download_db() -> None:
     """Download the SQLite file from GCS to the local filesystem."""
-    # Load credentials from environment variable
-    credentials = service_account.Credentials.from_service_account_file(key_path)
-
-    client = storage.Client(credentials=credentials)
-    bucket = client.bucket(BUCKET_NAME)
-    blob = bucket.blob(BLOB_NAME)
+    client = storage.Client()
+    bucket: storage.Bucket = client.bucket(BUCKET_NAME)
+    blob: storage.Blob = bucket.blob(BLOB_NAME)
     blob.download_to_filename(DATABASE_FILE)
     print(f"Downloaded database from {BLOB_NAME} to {DATABASE_FILE}")
 
 
 def upload_db() -> None:
     """Upload the SQLite file from the local filesystem to GCS."""
-    # Load credentials from environment variable
-    credentials = service_account.Credentials.from_service_account_file(key_path)
-
-    client = storage.Client(credentials=credentials)
-    bucket = client.bucket(BUCKET_NAME)
-    blob = bucket.blob(BLOB_NAME)
+    client = storage.Client()
+    bucket: storage.Bucket = client.bucket(BUCKET_NAME)
+    blob: storage.Blob = bucket.blob(BLOB_NAME)
     blob.upload_from_filename(DATABASE_FILE)
     print(f"Uploaded database from {DATABASE_FILE} to {BLOB_NAME}")

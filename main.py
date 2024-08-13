@@ -1,5 +1,11 @@
 import asyncio
 
+from dotenv import load_dotenv
+
+load_dotenv()
+# pylint: disable=wrong-import-position
+
+
 from fastapi import FastAPI
 from sqlalchemy.orm.session import Session
 
@@ -33,4 +39,4 @@ app.include_router(router)
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
