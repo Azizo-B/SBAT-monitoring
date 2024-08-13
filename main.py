@@ -5,21 +5,26 @@ from sqlalchemy.orm.session import Session
 
 from api.dependencies import Base, SessionLocal, engine
 from api.routes import router
-from api.utils import check_for_dates
+from api.utils import check_for_dates, download_db, upload_db
 
-app = FastAPI()
-
-Base.metadata.create_all(bind=engine)
+app = FastAPI(title="SBAT Driving Exam Date Checker")
 
 
 @app.on_event("startup")
 async def startup_event() -> None:
+    download_db()
+    Base.metadata.create_all(bind=engine)
     db: Session = SessionLocal()
     try:
         print("Database connected on startup")
         asyncio.create_task(check_for_dates(db))
     finally:
         db.close()
+
+
+@app.on_event("shutdown")
+async def shutdown_event() -> None:
+    upload_db()
 
 
 app.include_router(router)

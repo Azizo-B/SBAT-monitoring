@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from .dependencies import get_db
-from .models import Subscriber, SubscriptionRequest
+from .models import ExamDate, ExamDateSchema, SbatRequests, SbatRequestSchema, Subscriber, SubscriptionRequest
 
 router = APIRouter()
 
@@ -24,4 +24,15 @@ async def unsubscribe(subscription: SubscriptionRequest, db: Session = Depends(g
     existing_subscriber: int = db.query(Subscriber).filter(Subscriber.email == subscription.email).delete()
     if existing_subscriber == 0:
         raise HTTPException(status_code=400, detail="Email is not subscribed")
+    db.commit()
     return {"message": "Unsubscribed successfully!"}
+
+
+@router.get("/request")
+async def get_requests(db: Session = Depends(get_db)) -> list[SbatRequestSchema]:
+    return db.query(SbatRequests).all()
+
+
+@router.get("/exam-dates")
+async def get_exam_dates(db: Session = Depends(get_db)) -> list[ExamDateSchema]:
+    return db.query(ExamDate).all()

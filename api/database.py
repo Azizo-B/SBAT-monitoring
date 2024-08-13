@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.orm.session import Session
 
-from .models import ExamDate
+from .models import ExamDate, SbatRequests, Subscriber
 
 
 def add_date(db: Session, date: dict, status: str) -> ExamDate:
@@ -29,9 +29,46 @@ def get_notified_dates(db: Session) -> set:
     return {date.exam_id for date in db.query(ExamDate).filter(ExamDate.status == "notified").all()}
 
 
+def get_date_status(db: Session, exam_id: str) -> str | None:
+    db_date: ExamDate | None = db.query(ExamDate).filter(ExamDate.exam_id == exam_id).first()
+    return db_date.status if db_date else None
+
+
 def set_date_status(db: Session, exam_id: str, status: str) -> None:
     db_date: ExamDate | None = db.query(ExamDate).filter(ExamDate.exam_id == exam_id).first()
     if db_date:
         db_date.status = status
+        if status == "taken":
+            db_date.taken_at = datetime.now()
+        if status == "notified":
+            db_date.found_at = datetime.now()
         db.commit()
         db.refresh(db_date)
+
+
+def set_first_taken_at(db: Session, exam_id: str) -> None:
+    db_date: ExamDate | None = db.query(ExamDate).filter(ExamDate.exam_id == exam_id).first()
+    if db_date and not db_date.first_taken_at:
+        db_date.first_taken_at = datetime.now()
+        db.commit()
+        db.refresh(db_date)
+
+
+def get_all_subscribers(db: Session) -> list[str]:
+    return [subscriber.email for subscriber in db.query(Subscriber).all()]
+
+
+def add_sbat_request(
+    db: Session, email_used: str, request_type: str, url: str, request_body: str | None = None, response: str | None = None
+) -> SbatRequests:
+    db_request = SbatRequests(
+        email_used=email_used,
+        request_type=request_type,
+        request_body=request_body,
+        response=response,
+        url=url,
+    )
+    db.add(db_request)
+    db.commit()
+    db.refresh(db_request)
+    return db_request

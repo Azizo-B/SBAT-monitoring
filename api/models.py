@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import Boolean, Column, DateTime, Integer, String
 
@@ -9,8 +11,16 @@ class Subscriber(Base):
     email = Column(String, primary_key=True, index=True)
 
 
-class SubscriptionRequest(BaseModel):
-    email: EmailStr
+class SbatRequests(Base):
+    __tablename__: str = "sbat_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email_used = Column(String, nullable=False)
+    timestamp = Column(DateTime, nullable=False, default=datetime.now)
+    request_type = Column(String, nullable=False)
+    request_body = Column(String, nullable=True)
+    response = Column(String, nullable=True)
+    url = Column(String, nullable=False)
 
 
 class ExamDate(Base):
@@ -18,6 +28,11 @@ class ExamDate(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     exam_id = Column(Integer, unique=True, index=True)
+
+    first_found_at = Column(DateTime, nullable=False, default=datetime.now)
+    first_taken_at = Column(DateTime, nullable=True)
+    found_at = Column(DateTime, nullable=False, default=datetime.now)
+    taken_at = Column(DateTime, nullable=True)
 
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=False)
@@ -30,3 +45,45 @@ class ExamDate(Base):
     exam_type = Column(String, nullable=True)
     examinee = Column(String, nullable=True)
     types_blob = Column(String, nullable=True)
+
+
+class SubscriptionRequest(BaseModel):
+    email: EmailStr
+
+
+class SbatRequestSchema(BaseModel):
+    id: int
+    email_used: str
+    timestamp: datetime
+    request_type: str
+    request_body: str | None
+    response: str | None
+    url: str
+
+    class Config:
+        orm_mode = True
+
+
+class ExamDateSchema(BaseModel):
+    id: int
+    exam_id: int
+
+    first_found_at: datetime
+    first_taken_at: datetime | None = None
+    found_at: datetime
+    taken_at: datetime | None = None
+
+    start_time: datetime
+    end_time: datetime
+    status: str
+
+    is_public: bool | None = None
+    day_id: int | None = None
+    driving_school: str | None = None
+    exam_center_id: int | None = None
+    exam_type: str | None = None
+    examinee: str | None = None
+    types_blob: str | None = None
+
+    class Config:
+        orm_mode = True
