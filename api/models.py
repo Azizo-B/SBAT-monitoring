@@ -61,7 +61,7 @@ class SbatRequestSchema(BaseModel):
     url: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ExamDateSchema(BaseModel):
@@ -86,4 +86,4 @@ class ExamDateSchema(BaseModel):
     types_blob: str | None = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True

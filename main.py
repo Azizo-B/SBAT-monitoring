@@ -1,36 +1,25 @@
-import asyncio
-
-from dotenv import load_dotenv
-
-load_dotenv()
-# pylint: disable=wrong-import-position
-
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 
 from fastapi import FastAPI
-from sqlalchemy.orm.session import Session
 
-from api.dependencies import Base, SessionLocal, engine
+from api.dependencies import Base, Settings, engine, get_settings
 from api.routes import router
-from api.utils import check_for_dates, download_db, upload_db
-
-app = FastAPI(title="SBAT Driving Exam Date Checker")
+from api.utils import download_file_from_gcs, upload_file_to_gcs
 
 
-@app.on_event("startup")
-async def startup_event() -> None:
-    download_db()
-    Base.metadata.create_all(bind=engine)
-    db: Session = SessionLocal()
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:  # pylint: disable=redefined-outer-name, unused-argument
     try:
-        print("Database connected on startup")
-        asyncio.create_task(check_for_dates(db))
+        settings: Settings = get_settings()
+        download_file_from_gcs(settings.bucket_name, settings.blob_name, settings.database_file)
+        Base.metadata.create_all(bind=engine)
+        yield
     finally:
-        db.close()
+        upload_file_to_gcs(settings.bucket_name, settings.blob_name, settings.database_file)
 
 
-@app.on_event("shutdown")
-async def shutdown_event() -> None:
-    upload_db()
+app = FastAPI(title="SBAT Exam Date Checker", lifespan=lifespan)
 
 
 app.include_router(router)

@@ -1,10 +1,40 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from .dependencies import get_db
+from .dependencies import Settings, get_db, get_settings
 from .models import ExamDate, ExamDateSchema, SbatRequests, SbatRequestSchema, Subscriber, SubscriptionRequest
+from .sbat_monitor import SbatMonitor
 
 router = APIRouter()
+sbat_monitor = SbatMonitor()
+
+
+@router.get("/startup")
+async def start_monitoring(
+    seconds_inbetween: int | None = None,
+    license_type: str | None = None,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> dict[str, str]:
+    sbat_monitor.db = db
+    sbat_monitor.settings = settings
+    sbat_monitor.seconds_inbetween = seconds_inbetween
+    sbat_monitor.license_type = license_type
+
+    try:
+        await sbat_monitor.start()
+        return {"status": "Started successfully"}
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        return {"status": f"Failed to start monitoring: {str(e)}"}
+
+
+@router.get("/shutdown")
+async def stop_monitoring() -> dict[str, str]:
+    try:
+        await sbat_monitor.stop()
+        return {"status": "Stopped successfully"}
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        return {"status": f"Failed to stop monitoring: {str(e)}"}
 
 
 @router.post("/subscribe")

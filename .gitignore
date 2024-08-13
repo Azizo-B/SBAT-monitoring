@@ -6,4 +6,4 @@ database.db
 alembic.ini
 alembic/
 tmp/
-google_credentials;json
+google_credentials.json
