@@ -44,3 +44,13 @@ def get_db() -> Generator:
         yield db
     finally:
         db.close()
+
+
+@lru_cache
+def get_sbat_monitor():
+    db: Session = next(get_db())
+    settings: Settings = get_settings()
+
+    from .sbat_monitor import SbatMonitor  # pylint: disable=import-outside-toplevel
+
+    return SbatMonitor(db=db, settings=settings)

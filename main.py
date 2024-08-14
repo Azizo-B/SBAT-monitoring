@@ -10,8 +10,8 @@ from api.utils import download_file_from_gcs, upload_file_to_gcs
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:  # pylint: disable=redefined-outer-name, unused-argument
+    settings: Settings = get_settings()
     try:
-        settings: Settings = get_settings()
         download_file_from_gcs(settings.bucket_name, settings.blob_name, settings.database_file)
         Base.metadata.create_all(bind=engine)
         yield

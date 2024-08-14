@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import Boolean, Column, DateTime, Integer, String
@@ -47,13 +48,28 @@ class ExamDate(Base):
     types_blob = Column(String, nullable=True)
 
 
+class MonitorConfiguration(BaseModel):
+    seconds_inbetween: int | None = None
+    license_types: list[Literal["B", "AM"]] | None = None
+
+
+class MonitorStatus(BaseModel):
+    running: bool
+    seconds_inbetween: int
+    license_types: list[str]
+    task_done: bool | None = None
+    total_time_running: str
+    first_started_at: datetime | None = None
+    last_started_at: datetime | None = None
+    last_stopped_at: datetime | None = None
+    task_exception: str | None = None
+
+
 class SubscriptionRequest(BaseModel):
     email: EmailStr
 
 
-class SbatRequestSchema(BaseModel):
-    id: int
-    email_used: str
+class SbatRequestBaseSchema(BaseModel):
     timestamp: datetime
     request_type: str
     request_body: str | None
@@ -62,6 +78,14 @@ class SbatRequestSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class SbatRequestCreateSchema(SbatRequestBaseSchema):
+    email_used: str
+
+
+class SbatRequestReadSchema(SbatRequestBaseSchema):
+    id: int
 
 
 class ExamDateSchema(BaseModel):

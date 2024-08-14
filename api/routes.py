@@ -1,35 +1,53 @@
+import asyncio
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from .dependencies import Settings, get_db, get_settings
-from .models import ExamDate, ExamDateSchema, SbatRequests, SbatRequestSchema, Subscriber, SubscriptionRequest
+from api.models import MonitorStatus
+
+from .dependencies import get_db, get_sbat_monitor
+from .models import ExamDate, ExamDateSchema, MonitorConfiguration, SbatRequestReadSchema, SbatRequests, Subscriber, SubscriptionRequest
 from .sbat_monitor import SbatMonitor
 
 router = APIRouter()
-sbat_monitor = SbatMonitor()
 
 
-@router.get("/startup")
-async def start_monitoring(
-    seconds_inbetween: int | None = None,
-    license_type: str | None = None,
-    db: Session = Depends(get_db),
-    settings: Settings = Depends(get_settings),
-) -> dict[str, str]:
-    sbat_monitor.db = db
-    sbat_monitor.settings = settings
-    sbat_monitor.seconds_inbetween = seconds_inbetween
-    sbat_monitor.license_type = license_type
+@router.post("/startup", tags=["SBAT monitor"])
+async def start_monitoring(config: MonitorConfiguration, sbat_monitor: SbatMonitor = Depends(get_sbat_monitor)) -> dict[str, str]:
+    if config.seconds_inbetween:
+        sbat_monitor.seconds_inbetween = config.seconds_inbetween
+    if config.license_types:
+        sbat_monitor.license_types = config.license_types
 
     try:
         await sbat_monitor.start()
+        await asyncio.sleep(3)
+        if sbat_monitor.task.done() and sbat_monitor.task.exception():
+            raise sbat_monitor.task.exception()
         return {"status": "Started successfully"}
     except Exception as e:  # pylint: disable=broad-exception-caught
         return {"status": f"Failed to start monitoring: {str(e)}"}
 
 
-@router.get("/shutdown")
-async def stop_monitoring() -> dict[str, str]:
+@router.post("/monitor-config", tags=["SBAT monitor"])
+async def update_monitoring_configurations(
+    config: MonitorConfiguration, sbat_monitor: SbatMonitor = Depends(get_sbat_monitor)
+) -> MonitorStatus:
+    if config.seconds_inbetween:
+        sbat_monitor.seconds_inbetween = config.seconds_inbetween
+    if config.license_types:
+        sbat_monitor.license_types = config.license_types
+
+    return sbat_monitor.status()
+
+
+@router.get("/monitor-status", tags=["SBAT monitor"])
+async def get_monitoring_status(sbat_monitor: SbatMonitor = Depends(get_sbat_monitor)) -> MonitorStatus:
+    return sbat_monitor.status()
+
+
+@router.get("/shutdown", tags=["SBAT monitor"])
+async def stop_monitoring(sbat_monitor: SbatMonitor = Depends(get_sbat_monitor)) -> dict[str, str]:
     try:
         await sbat_monitor.stop()
         return {"status": "Stopped successfully"}
@@ -37,7 +55,7 @@ async def stop_monitoring() -> dict[str, str]:
         return {"status": f"Failed to stop monitoring: {str(e)}"}
 
 
-@router.post("/subscribe")
+@router.post("/subscribe", tags=["Notification"])
 async def subscribe(subscription: SubscriptionRequest, db: Session = Depends(get_db)) -> dict[str, str]:
     existing_subscriber: Subscriber | None = db.query(Subscriber).filter(Subscriber.email == subscription.email).first()
     if existing_subscriber:
@@ -49,7 +67,7 @@ async def subscribe(subscription: SubscriptionRequest, db: Session = Depends(get
     return {"message": "Subscribed successfully!"}
 
 
-@router.post("/unsubscribe")
+@router.post("/unsubscribe", tags=["Notification"])
 async def unsubscribe(subscription: SubscriptionRequest, db: Session = Depends(get_db)) -> dict[str, str]:
     existing_subscriber: int = db.query(Subscriber).filter(Subscriber.email == subscription.email).delete()
     if existing_subscriber == 0:
@@ -58,11 +76,11 @@ async def unsubscribe(subscription: SubscriptionRequest, db: Session = Depends(g
     return {"message": "Unsubscribed successfully!"}
 
 
-@router.get("/request")
-async def get_requests(db: Session = Depends(get_db)) -> list[SbatRequestSchema]:
+@router.get("/request", tags=["DB Queries"])
+async def get_requests(db: Session = Depends(get_db)) -> list[SbatRequestReadSchema]:
     return db.query(SbatRequests).all()
 
 
-@router.get("/exam-dates")
+@router.get("/exam-dates", tags=["DB Queries"])
 async def get_exam_dates(db: Session = Depends(get_db)) -> list[ExamDateSchema]:
     return db.query(ExamDate).all()
