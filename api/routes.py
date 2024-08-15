@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from api.models import MonitorStatus
 
 from .dependencies import get_db, get_sbat_monitor
-from .models import ExamDate, ExamDateSchema, MonitorConfiguration, SbatRequestReadSchema, SbatRequests, Subscriber, SubscriptionRequest
+from .models import ExamDate, ExamDateSchema, MonitorConfiguration, SbatRequest, SbatRequestReadSchema, Subscriber, SubscriptionRequest
 from .sbat_monitor import SbatMonitor
 
 router = APIRouter()
@@ -78,7 +78,7 @@ async def unsubscribe(subscription: SubscriptionRequest, db: Session = Depends(g
 
 @router.get("/request", tags=["DB Queries"])
 async def get_requests(db: Session = Depends(get_db)) -> list[SbatRequestReadSchema]:
-    return db.query(SbatRequests).all()
+    return db.query(SbatRequest).all()
 
 
 @router.get("/exam-dates", tags=["DB Queries"])

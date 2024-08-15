@@ -4,14 +4,18 @@ from datetime import datetime, timedelta
 from multiprocessing import AuthenticationError
 from typing import NoReturn
 
+import jwt
 import requests
 from sqlalchemy.orm.session import Session
+
+from api.models import SbatRequest
 
 from .database import (
     add_date,
     add_sbat_request,
     get_all_subscribers,
     get_date_status,
+    get_last_sbat_auth_request,
     get_notified_dates,
     set_date_status,
     set_first_taken_at,
@@ -103,6 +107,15 @@ class SbatMonitor:
         )
 
     def authenticate(self) -> str:
+        last_request: SbatRequest | None = get_last_sbat_auth_request(self.db)
+        if last_request:
+            try:
+                payload: dict = jwt.decode(last_request.response_body, options={"verify_signature": False})
+                if datetime.now() < datetime.fromtimestamp(payload["exp"]):
+                    return last_request.response_body
+            except:  # pylint: disable=bare-except
+                pass
+
         auth_response: requests.Response = requests.post(
             self.AUTH_URL,
             json={"username": self.settings.sbat_username, "password": self.settings.sbat_password},
@@ -161,9 +174,24 @@ class SbatMonitor:
                     print(data)
                     self.notify_users_and_update_db(data, license_type)
 
-                elif response.status_code == 401:
-                    headers: dict[str, str] = {**self.STANDARD_HEADERS, "Authorization": f"Bearer {self.authenticate()}"}
-                    continue
+                else:
+                    www_authenticate: str | None = response.headers.get("WWW-Authenticate")
+                    if response.status_code == 401 and www_authenticate and "The token is expired" in www_authenticate:
+                        headers: dict[str, str] = {**self.STANDARD_HEADERS, "Authorization": f"Bearer {self.authenticate()}"}
+                        continue
+                    else:
+                        www_authenticate = response.headers.get("WWW-Authenticate")
+                        error_message: str = (
+                            f"Unexpected status code {response.status_code}. "
+                            f"Headers: {response.headers}. "
+                            f"Response Body: {response.text}. "
+                            f"WWW-Authenticate Header: {www_authenticate}"
+                        )
+                        send_telegram_message(
+                            f"Got unknown {response.status_code} error: {error_message}",
+                            self.settings.telegram_bot_token,
+                            self.settings.telegram_chat_id,
+                        )
 
                 await asyncio.sleep(self.seconds_inbetween)
 

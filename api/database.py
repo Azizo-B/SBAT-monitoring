@@ -1,8 +1,9 @@
 from datetime import datetime
 
+from sqlalchemy import desc
 from sqlalchemy.orm.session import Session
 
-from .models import ExamDate, SbatRequests, Subscriber
+from .models import ExamDate, SbatRequest, Subscriber
 
 
 def add_date(db: Session, date: dict, status: str) -> ExamDate:
@@ -66,8 +67,8 @@ def add_sbat_request(
     request_body: str | None = None,
     response: str | None = None,
     response_body: str | None = None,
-) -> SbatRequests:
-    db_request = SbatRequests(
+) -> SbatRequest:
+    db_request = SbatRequest(
         email_used=email_used,
         request_type=request_type,
         request_body=request_body,
@@ -79,3 +80,7 @@ def add_sbat_request(
     db.commit()
     db.refresh(db_request)
     return db_request
+
+
+def get_last_sbat_auth_request(db: Session) -> SbatRequest | None:
+    return db.query(SbatRequest).filter(SbatRequest.request_type == "authentication").order_by(desc(SbatRequest.timestamp)).first()
