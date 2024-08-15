@@ -75,6 +75,8 @@ class SbatRequestBaseSchema(BaseModel):
     request_type: str
     request_body: str | None
     response: str | None
+    response_body: str | None
+
     url: str
 
     class Config:
