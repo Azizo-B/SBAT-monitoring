@@ -59,13 +59,20 @@ def get_all_subscribers(db: Session) -> list[str]:
 
 
 def add_sbat_request(
-    db: Session, email_used: str, request_type: str, url: str, request_body: str | None = None, response: str | None = None
+    db: Session,
+    email_used: str,
+    request_type: str,
+    url: str,
+    request_body: str | None = None,
+    response: str | None = None,
+    response_body: str | None = None,
 ) -> SbatRequests:
     db_request = SbatRequests(
         email_used=email_used,
         request_type=request_type,
         request_body=request_body,
         response=response,
+        response_body=response_body,
         url=url,
     )
     db.add(db_request)

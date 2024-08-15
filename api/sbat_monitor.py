@@ -42,7 +42,7 @@ class SbatMonitor:
         self.seconds_inbetween: int = seconds_inbetween
         if license_types is None:
             license_types = ["B"]
-        self.license_types: list = license_types
+        self.license_types: list[str] = license_types
 
         self.task: asyncio.Task | None = None
         self.total_time_running: timedelta = timedelta()
@@ -66,11 +66,6 @@ class SbatMonitor:
             await self.task
         except asyncio.CancelledError:
             pass
-        finally:
-            self.last_stopped_at = datetime.now()
-            if self.last_started_at:
-                self.total_time_running += self.last_stopped_at - self.last_started_at
-            self.task = None
 
     def clean_up(self, task: asyncio.Task) -> None:
         if task.cancelled():
@@ -115,7 +110,14 @@ class SbatMonitor:
             timeout=1000,
         )
 
-        add_sbat_request(self.db, self.settings.sbat_username, "authentication", url=self.AUTH_URL, response=auth_response.status_code)
+        add_sbat_request(
+            self.db,
+            self.settings.sbat_username,
+            "authentication",
+            url=self.AUTH_URL,
+            response=auth_response.status_code,
+            response_body=auth_response.text,
+        )
 
         if auth_response.status_code == 200:
             token: str = auth_response.text
@@ -144,9 +146,15 @@ class SbatMonitor:
                 )
 
                 add_sbat_request(
-                    self.db, self.settings.sbat_username, "check_for_dates", self.CHECK_URL, json.dumps(body), response.status_code
+                    self.db,
+                    self.settings.sbat_username,
+                    "check_for_dates",
+                    self.CHECK_URL,
+                    json.dumps(body),
+                    response.status_code,
+                    response.text if response.status_code != 200 else None,
                 )
-                print(f"Response status code {response.status_code} for license type '{license_type}'")
+                print(f"Response status code {response.status_code} for license type '{license_type}', {response.text}")
 
                 if response.status_code == 200:
                     data: dict = response.json()
@@ -162,7 +170,7 @@ class SbatMonitor:
     def notify_users_and_update_db(self, dates: list[dict], license_type: str) -> None:
         current_dates = set()
         notified_dates: set = get_notified_dates(self.db)
-        message = ""
+        message: str = ""
 
         for date in dates:
             exam_id: int = date["id"]

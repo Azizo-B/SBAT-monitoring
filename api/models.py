@@ -21,6 +21,7 @@ class SbatRequests(Base):
     request_type = Column(String, nullable=False)
     request_body = Column(String, nullable=True)
     response = Column(String, nullable=True)
+    response_body = Column(String, nullable=True)
     url = Column(String, nullable=False)
 
 
