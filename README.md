@@ -2,7 +2,7 @@
 
 ## Overview
 
-The **SBAT Monitoring System** is a Python API designed to monitor and notify users of available driving exam dates from the SBAT API. The system periodically checks for new available dates and sends notifications via email and Telegram when new dates are found. It also tracks the total runtime and provides status updates on the monitoring process.
+The **SBAT Monitoring System** is a Python API designed to monitor and notify users of available driving exam time slots from the SBAT API. The system periodically checks for new available time slots and sends notifications via email and Telegram when new slots open up. It also tracks the total runtime and provides status updates on the monitoring process.
 
 ## Table of Contents
 
@@ -162,9 +162,9 @@ This section explains how to set up the SBAT Monitoring System on your local mac
 
   Retrieves all SBAT request records from the database.
 
-- **`GET /exam-dates`**
+- **`GET /exam-time-slots`**
 
-  Retrieves all exam date records from the database.
+  Retrieves all exam time slot records from the database.
 
 ## Possible Flow of the API
 
@@ -196,5 +196,5 @@ This section explains how to set up the SBAT Monitoring System on your local mac
 
 6. **Querying the Database**
 
-   - User sends `GET` requests to `/request` or `/exam-dates` to retrieve records from the database.
+   - User sends `GET` requests to `/request` or `/exam-time-slots` to retrieve records from the database.
    - System returns the requested data in JSON format.

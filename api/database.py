@@ -3,56 +3,56 @@ from datetime import datetime
 from sqlalchemy import desc
 from sqlalchemy.orm.session import Session
 
-from .models import ExamDate, SbatRequest, Subscriber
+from .models import ExamTimeSlot, SbatRequest, Subscriber
 
 
-def add_date(db: Session, date: dict, status: str) -> ExamDate:
-    db_date = ExamDate(
-        exam_id=date["id"],
-        start_time=datetime.fromisoformat(date["from"]),
-        end_time=datetime.fromisoformat(date["till"]),
+def add_time_slot(db: Session, time_slot: dict, status: str) -> ExamTimeSlot:
+    db_time_slot = ExamTimeSlot(
+        exam_id=time_slot["id"],
+        start_time=datetime.fromisoformat(time_slot["from"]),
+        end_time=datetime.fromisoformat(time_slot["till"]),
         status=status,
-        is_public=date["isPublic"],
-        day_id=date["dayScheduleId"],
-        driving_school=date["drivingSchool"],
-        exam_center_id=date["examCenterId"],
-        exam_type=date["examType"],
-        examinee=date["examinee"],
-        types_blob=date["typesBlob"],
+        is_public=time_slot["isPublic"],
+        day_id=time_slot["dayScheduleId"],
+        driving_school=time_slot["drivingSchool"],
+        exam_center_id=time_slot["examCenterId"],
+        exam_type=time_slot["examType"],
+        examinee=time_slot["examinee"],
+        types_blob=time_slot["typesBlob"],
     )
-    db.add(db_date)
+    db.add(db_time_slot)
     db.commit()
-    db.refresh(db_date)
-    return db_date
+    db.refresh(db_time_slot)
+    return db_time_slot
 
 
-def get_notified_dates(db: Session) -> set:
-    return {date.exam_id for date in db.query(ExamDate).filter(ExamDate.status == "notified").all()}
+def get_notified_time_slots(db: Session) -> set:
+    return {time_slot.exam_id for time_slot in db.query(ExamTimeSlot).filter(ExamTimeSlot.status == "notified").all()}
 
 
-def get_date_status(db: Session, exam_id: str) -> str | None:
-    db_date: ExamDate | None = db.query(ExamDate).filter(ExamDate.exam_id == exam_id).first()
-    return db_date.status if db_date else None
+def get_time_slot_status(db: Session, exam_id: str) -> str | None:
+    db_time_slot: ExamTimeSlot | None = db.query(ExamTimeSlot).filter(ExamTimeSlot.exam_id == exam_id).first()
+    return db_time_slot.status if db_time_slot else None
 
 
-def set_date_status(db: Session, exam_id: str, status: str) -> None:
-    db_date: ExamDate | None = db.query(ExamDate).filter(ExamDate.exam_id == exam_id).first()
-    if db_date:
-        db_date.status = status
+def set_time_slot_status(db: Session, exam_id: str, status: str) -> None:
+    db_time_slot: ExamTimeSlot | None = db.query(ExamTimeSlot).filter(ExamTimeSlot.exam_id == exam_id).first()
+    if db_time_slot:
+        db_time_slot.status = status
         if status == "taken":
-            db_date.taken_at = datetime.now()
+            db_time_slot.taken_at = datetime.now()
         if status == "notified":
-            db_date.found_at = datetime.now()
+            db_time_slot.found_at = datetime.now()
         db.commit()
-        db.refresh(db_date)
+        db.refresh(db_time_slot)
 
 
 def set_first_taken_at(db: Session, exam_id: str) -> None:
-    db_date: ExamDate | None = db.query(ExamDate).filter(ExamDate.exam_id == exam_id).first()
-    if db_date and not db_date.first_taken_at:
-        db_date.first_taken_at = datetime.now()
+    db_time_slot: ExamTimeSlot | None = db.query(ExamTimeSlot).filter(ExamTimeSlot.exam_id == exam_id).first()
+    if db_time_slot and not db_time_slot.first_taken_at:
+        db_time_slot.first_taken_at = datetime.now()
         db.commit()
-        db.refresh(db_date)
+        db.refresh(db_time_slot)
 
 
 def get_all_subscribers(db: Session) -> list[str]:

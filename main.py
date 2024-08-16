@@ -21,7 +21,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:  # pylint: disab
             upload_file_to_gcs(settings.bucket_name, settings.blob_name, settings.database_file)
 
 
-app = FastAPI(title="SBAT Exam Date Checker", lifespan=lifespan)
+app = FastAPI(title="SBAT Exam Time Slot Checker", lifespan=lifespan)
 
 
 app.include_router(router)

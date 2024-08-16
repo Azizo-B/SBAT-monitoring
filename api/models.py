@@ -25,8 +25,8 @@ class SbatRequest(Base):
     url = Column(String, nullable=False)
 
 
-class ExamDate(Base):
-    __tablename__: str = "exam_dates"
+class ExamTimeSlot(Base):
+    __tablename__: str = "exam_time_slots"
 
     id = Column(Integer, primary_key=True, index=True)
     exam_id = Column(Integer, unique=True, index=True)
@@ -90,7 +90,7 @@ class SbatRequestReadSchema(SbatRequestBaseSchema):
     id: int
 
 
-class ExamDateSchema(BaseModel):
+class ExamTimeSlotSchema(BaseModel):
     id: int
     exam_id: int
 

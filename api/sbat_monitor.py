@@ -11,14 +11,14 @@ from sqlalchemy.orm.session import Session
 from api.models import SbatRequest
 
 from .database import (
-    add_date,
     add_sbat_request,
+    add_time_slot,
     get_all_subscribers,
-    get_date_status,
     get_last_sbat_auth_request,
-    get_notified_dates,
-    set_date_status,
+    get_notified_time_slots,
+    get_time_slot_status,
     set_first_taken_at,
+    set_time_slot_status,
 )
 from .dependencies import Settings
 from .models import MonitorStatus
@@ -57,7 +57,7 @@ class SbatMonitor:
     async def start(self) -> None:
         if self.task:
             raise RuntimeError("Monitoring is already running.")
-        self.task = asyncio.create_task(self.check_for_dates())
+        self.task = asyncio.create_task(self.check_for_time_slots())
         self.last_started_at: datetime = datetime.now()
         self.first_started_at: datetime = self.first_started_at or self.last_started_at
         self.task.add_done_callback(self.clean_up)
@@ -138,13 +138,13 @@ class SbatMonitor:
         else:
             raise AuthenticationError("Authentication failed")
 
-    async def check_for_dates(self) -> NoReturn:
+    async def check_for_time_slots(self) -> NoReturn:
         token: str = self.authenticate()
         headers: dict[str, str] = {**self.STANDARD_HEADERS, "Authorization": f"Bearer {token}"}
 
         while True:
             for license_type in self.license_types:
-                print(f"Checking for new dates for license type '{license_type}'...")
+                print(f"Checking for new time slots for license type '{license_type}'...")
                 body: dict = {
                     "examCenterId": 1,
                     "licenseType": license_type,
@@ -161,7 +161,7 @@ class SbatMonitor:
                 add_sbat_request(
                     self.db,
                     self.settings.sbat_username,
-                    "check_for_dates",
+                    "check_for_time_slots",
                     self.CHECK_URL,
                     json.dumps(body),
                     response.status_code,
@@ -195,30 +195,30 @@ class SbatMonitor:
 
                 await asyncio.sleep(self.seconds_inbetween)
 
-    def notify_users_and_update_db(self, dates: list[dict], license_type: str) -> None:
-        current_dates = set()
-        notified_dates: set = get_notified_dates(self.db)
+    def notify_users_and_update_db(self, time_slots: list[dict], license_type: str) -> None:
+        current_time_slots = set()
+        notified_time_slots: set = get_notified_time_slots(self.db)
         message: str = ""
 
-        for date in dates:
-            exam_id: int = date["id"]
-            start_time: datetime = datetime.fromisoformat(date["from"])
-            end_time: datetime = datetime.fromisoformat(date["till"])
-            current_dates.add(exam_id)
+        for time_slot in time_slots:
+            exam_id: int = time_slot["id"]
+            start_time: datetime = datetime.fromisoformat(time_slot["from"])
+            end_time: datetime = datetime.fromisoformat(time_slot["till"])
+            current_time_slots.add(exam_id)
 
-            if exam_id not in notified_dates:
+            if exam_id not in notified_time_slots:
 
-                new_date_messag: str = f"{start_time.date()}  {start_time.time()} - {end_time.time()}\n"
-                if new_date_messag not in message:
-                    message += new_date_messag
+                new_time_slot_messag: str = f"{start_time.date()}  {start_time.time()} - {end_time.time()}\n"
+                if new_time_slot_messag not in message:
+                    message += new_time_slot_messag
 
-                if get_date_status(self.db, exam_id) == "taken":
-                    set_date_status(self.db, exam_id, "notified")
+                if get_time_slot_status(self.db, exam_id) == "taken":
+                    set_time_slot_status(self.db, exam_id, "notified")
                 else:
-                    add_date(self.db, date, status="notified")
+                    add_time_slot(self.db, time_slot, status="notified")
 
         if message:
-            subject: str = f"New driving exam dates available for license type '{license_type}':"
+            subject: str = f"New driving exam time_slots available for license type '{license_type}':"
             message: str = subject + "\n\n" + message
             send_email_to(
                 subject,
@@ -231,6 +231,6 @@ class SbatMonitor:
             )
             send_telegram_message(message, self.settings.telegram_bot_token, self.settings.telegram_chat_id)
 
-        for exam_id in notified_dates - current_dates:
-            set_date_status(self.db, exam_id, "taken")
+        for exam_id in notified_time_slots - current_time_slots:
+            set_time_slot_status(self.db, exam_id, "taken")
             set_first_taken_at(self.db, exam_id)

@@ -6,7 +6,15 @@ from sqlalchemy.orm import Session
 from api.models import MonitorStatus
 
 from .dependencies import get_db, get_sbat_monitor
-from .models import ExamDate, ExamDateSchema, MonitorConfiguration, SbatRequest, SbatRequestReadSchema, Subscriber, SubscriptionRequest
+from .models import (
+    ExamTimeSlot,
+    ExamTimeSlotSchema,
+    MonitorConfiguration,
+    SbatRequest,
+    SbatRequestReadSchema,
+    Subscriber,
+    SubscriptionRequest,
+)
 from .sbat_monitor import SbatMonitor
 
 router = APIRouter()
@@ -81,6 +89,6 @@ async def get_requests(db: Session = Depends(get_db)) -> list[SbatRequestReadSch
     return db.query(SbatRequest).all()
 
 
-@router.get("/exam-dates", tags=["DB Queries"])
-async def get_exam_dates(db: Session = Depends(get_db)) -> list[ExamDateSchema]:
-    return db.query(ExamDate).all()
+@router.get("/exam-time-slots", tags=["DB Queries"])
+async def get_exam_time_slots(db: Session = Depends(get_db)) -> list[ExamTimeSlotSchema]:
+    return db.query(ExamTimeSlot).all()
