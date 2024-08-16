@@ -10,7 +10,7 @@ def send_telegram_message(message: str, bot_token: str, chat_id: str) -> None:
     url: str = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     payload: dict[str, str] = {"chat_id": chat_id, "text": message}
     response: requests.Response = requests.post(url, data=payload, timeout=1000)
-    print(response.json())
+    print(f"Message sent to telegram chat: {chat_id} \nResponse: {response.status_code}")
 
 
 def send_email_to(subject: str, message: str, recipient_list: list[str], sender: str, password: str, smpt_server: str, smtp_port) -> None:

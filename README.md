@@ -6,17 +6,10 @@ The **SBAT Monitoring System** is a Python API designed to monitor and notify us
 
 ## Table of Contents
 
-- [Features](#features)
 - [Design Choices](#design-choices)
+- [Getting Started](#getting-started)
 - [API Endpoints](#api-endpoints)
 - [Possible Flow of the API](#possible-flow-of-the-api)
-
-## Features
-
-- **Authentication**: Uses SBAT API credentials to authenticate and retrieve data.
-- **Date Checking**: Periodically checks for available driving exam dates.
-- **Notifications**: Sends notifications via email and Telegram when new dates are found.
-- **Monitoring Status**: Provides information about the monitoring task's status, including runtime and exceptions.
 
 ## Design Choices
 
@@ -47,6 +40,91 @@ The **SBAT Monitoring System** is a Python API designed to monitor and notify us
 - ### Persistent Database Session
 
   The `SbatMonitor` class maintains a persistent database session to ensure that database operations are efficient and reliable. Keeping a persistent session open reduces the overhead of repeatedly opening and closing connections, which can be costly in terms of performance. This approach is particularly useful for applications that need to perform frequent database operations, as it helps to minimize latency and maintain a consistent connection state.
+
+## Getting Started
+
+This section explains how to set up the SBAT Monitoring System on your local machine.
+
+**Prerequisites:**
+
+- A SBAT account is required
+- A Google Cloud Platform account (optional, for database storage)
+
+**Steps:**
+
+1. **Clone the Repository:**
+
+2. **Create a Virtual Environment:**
+
+   It's recommended to create a virtual environment to manage dependencies:
+
+   ```bash
+   python -m venv .venv
+   ```
+
+   Activate the virtual environment:
+
+   - On Windows:
+
+     ```
+     .venv\Scripts\activate
+     ```
+
+   - On macOS/Linux:
+
+     ```
+     source .venv/bin/activate
+     ```
+
+3. **Install Dependencies:**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Create a .env File:**
+
+   Create a file named `.env` in the root directory of the project and add the following environment variables, replacing the placeholders with your actual values:
+
+   ```bash
+   # database Configuration (Required)
+   DATABASE_URL=database_url
+
+   # SBAT API Credentials (Required)
+   SBAT_USERNAME=your_sbat_username
+   SBAT_PASSWORD=your_sbat_passwords
+
+   # Telegram Notification Settings (Optional)
+   TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+   TELEGRAM_CHAT_ID=your_telegram_chat_id
+
+   # Email Notification Settings (Optional)
+   SENDER_EMAIL=email_used_to_send_notifications
+   SENDER_PASSWORD=email_password
+   SMTP_SERVER=smtp.gmail.com # Example for Gmail - adjust if needed
+   SMTP_PORT=587 # Typical port for secure email
+
+   # Google Cloud Storage Settings (Optional, for database storage)
+   GOOGLE_APPLICATION_CREDENTIALS=path/to/your/google_application_credentials.json
+   DATABASE_FILE=path/to/your/local/database.db
+   BUCKET_NAME=your_gcs_bucket_name
+   BLOB_NAME=your_desired_gcs_filename.db
+   ```
+
+   **Note:**
+
+   - If you don't plan on using Google Cloud Storage for database persistence, you can comment out or remove the `GOOGLE_APPLICATION_CREDENTIALS`, `DATABASE_FILE`, `BUCKET_NAME` and `BLOB_NAME` variables. The system will automatically exclude operations related to Google Cloud Storage.
+
+5. **Run the Application:**
+
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+6. **Access the API Documentation:**
+
+   Once the application is running, you can access the API documentation at:
+   http://127.0.0.1:8000/docs
 
 ## API Endpoints
 

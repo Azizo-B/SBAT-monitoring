@@ -1,4 +1,3 @@
-import os
 from functools import lru_cache
 from typing import Generator
 
@@ -10,19 +9,23 @@ from sqlalchemy.orm.session import Session
 
 
 class Settings(BaseSettings):
-    telegram_bot_token: str
-    telegram_chat_id: str
+    database_url: str
+
     sbat_username: str
     sbat_password: str
-    database_url: str
-    database_file: str
-    bucket_name: str
-    blob_name: str
-    google_application_credentials: str
+
+    telegram_bot_token: str | None = None
+    telegram_chat_id: str | None = None
+
     sender_email: str | None = None
     sender_password: str | None = None
     smtp_server: str | None = None
     smtp_port: int | None = None
+
+    google_application_credentials: str | None = None
+    database_file: str | None = None
+    bucket_name: str | None = None
+    blob_name: str | None = None
 
     class Config:
         env_file: str = ".env"
@@ -33,7 +36,7 @@ def get_settings() -> Settings:
     return Settings()
 
 
-engine: Engine = create_engine(os.getenv("DATABASE_URL"), connect_args={"check_same_thread": False})
+engine: Engine = create_engine(get_settings().database_url, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
