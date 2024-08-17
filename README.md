@@ -9,6 +9,7 @@ The **SBAT Monitoring System** is a Python API designed to monitor and notify us
 - [Design Choices](#design-choices)
 - [Getting Started](#getting-started)
 - [API Endpoints](#api-endpoints)
+- [Configuration Options](#configuration-options)
 - [Possible Flow of the API](#possible-flow-of-the-api)
 
 ## Design Choices
@@ -165,6 +166,39 @@ This section explains how to set up the SBAT Monitoring System on your local mac
 - **`GET /exam-time-slots`**
 
   Retrieves all exam time slot records from the database.
+
+## Configuration Options
+
+The `MonitorConfiguration` class defines the configuration settings for the SBAT Monitoring System. Below are the available configuration options, their default values, and descriptions:
+
+- **`license_types`**: `List[Literal["B", "AM"]]`
+
+  - **Description**: A list of driving license types to monitor. Valid values are `"B"` for car licenses and `"AM"` for motorcycle licenses. The license types are based on the codes used by the SBAT API, you can add their respective letters to this list. For example, if the SBAT API introduces a new license type `"C"`, you can include `"C"` in this list to monitor that type as well.
+  - **Default Value**: `["B"]`
+
+- **`exam_center_ids`**: `List[int]`
+
+  - **Description**: A list of exam center IDs to check for available time slots. These IDs correspond to specific locations. If the SBAT API adds new exam centers, you can include their respective IDs in this dict found in `api/models.py`
+
+    `{1: "Sint-Denijs-Westrem", 7: "Brakel", 8: "Eeklo", 9: "Erembodegem", 10: "Sint-Niklaas"}`
+
+  - **Default Value**: `[1]` (corresponding to `"Sint-Denijs-Westrem"`)
+
+- **`seconds_inbetween`**: `PositiveInt`
+  - **Description**: The interval in seconds between successive checks for new time slots.
+  - **Default Value**: `300` (5 minutes)
+
+### Example Configuration
+
+Here’s an example of how you might configure the `MonitorConfiguration`:
+
+```json
+{
+  "license_types": ["B", "AM"],
+  "exam_center_ids": [1, 7, 8],
+  "seconds_inbetween": 600
+}
+```
 
 ## Possible Flow of the API
 

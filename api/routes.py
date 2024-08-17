@@ -22,11 +22,7 @@ router = APIRouter()
 
 @router.post("/startup", tags=["SBAT monitor"])
 async def start_monitoring(config: MonitorConfiguration, sbat_monitor: SbatMonitor = Depends(get_sbat_monitor)) -> dict[str, str]:
-    if config.seconds_inbetween:
-        sbat_monitor.seconds_inbetween = config.seconds_inbetween
-    if config.license_types:
-        sbat_monitor.license_types = config.license_types
-
+    sbat_monitor.config = config
     try:
         await sbat_monitor.start()
         await asyncio.sleep(3)
@@ -41,11 +37,7 @@ async def start_monitoring(config: MonitorConfiguration, sbat_monitor: SbatMonit
 async def update_monitoring_configurations(
     config: MonitorConfiguration, sbat_monitor: SbatMonitor = Depends(get_sbat_monitor)
 ) -> MonitorStatus:
-    if config.seconds_inbetween:
-        sbat_monitor.seconds_inbetween = config.seconds_inbetween
-    if config.license_types:
-        sbat_monitor.license_types = config.license_types
-
+    sbat_monitor.config = config
     return sbat_monitor.status()
 
 

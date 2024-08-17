@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, PositiveInt, field_validator
 from sqlalchemy import Boolean, Column, DateTime, Integer, String
 
 from .dependencies import Base
@@ -49,15 +49,26 @@ class ExamTimeSlot(Base):
     types_blob = Column(String, nullable=True)
 
 
+EXAM_CENTER_MAP: dict[int, str] = {1: "Sint-Denijs-Westrem", 7: "Brakel", 8: "Eeklo", 9: "Erembodegem", 10: "Sint-Niklaas"}
+
+
 class MonitorConfiguration(BaseModel):
-    seconds_inbetween: int | None = None
-    license_types: list[Literal["B", "AM"]] | None = None
+    license_types: list[Literal["B", "AM"]] = ["B"]
+    exam_center_ids: list[int] = [1]
+    seconds_inbetween: PositiveInt = 300
+
+    @field_validator("exam_center_ids")
+    def validate_exam_center_ids(cls, value):  # pylint: disable=no-self-argument
+        if not all(id in EXAM_CENTER_MAP for id in value):
+            raise ValueError("One or more exam center IDs are invalid.")
+        return value
 
 
 class MonitorStatus(BaseModel):
     running: bool
     seconds_inbetween: int
     license_types: list[str]
+    exam_centers: list[str]
     task_done: bool | None = None
     total_time_running: str
     first_started_at: datetime | None = None

@@ -54,6 +54,7 @@ def get_sbat_monitor():
     db: Session = next(get_db())
     settings: Settings = get_settings()
 
+    from .models import MonitorConfiguration  # pylint: disable=import-outside-toplevel
     from .sbat_monitor import SbatMonitor  # pylint: disable=import-outside-toplevel
 
-    return SbatMonitor(db=db, settings=settings)
+    return SbatMonitor(db=db, settings=settings, config=MonitorConfiguration())
