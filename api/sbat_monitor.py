@@ -173,7 +173,7 @@ class SbatMonitor:
                         headers: dict[str, str] = {**self.STANDARD_HEADERS, "Authorization": f"Bearer {self.authenticate()}"}
                         continue
 
-                    self._handle_response(response, license_type, exam_center_name)
+                    self._handle_response(response, license_type, exam_center_id)
                     await asyncio.sleep(self.seconds_inbetween)
 
     def _perform_check(self, headers: dict[str, str], license_type: str, exam_center_id: int, exam_center_name: str) -> Response:
@@ -206,11 +206,12 @@ class SbatMonitor:
         www_authenticate: str | None = response.headers.get("WWW-Authenticate")
         return response.status_code == 401 and www_authenticate and "The token is expired" in www_authenticate
 
-    def _handle_response(self, response: Response, license_type: str, exam_center_name: str) -> None:
+    def _handle_response(self, response: Response, license_type: str, exam_center_id: int) -> None:
+        exam_center_name: str = EXAM_CENTER_MAP[exam_center_id]
         if response.status_code == 200:
             data: dict = response.json()
             print(data)
-            self.notify_users_and_update_db(data, exam_center_name, license_type)
+            self.notify_users_and_update_db(data, exam_center_id, exam_center_name, license_type)
 
         else:
             www_authenticate: str | None = response.headers.get("WWW-Authenticate")
@@ -226,9 +227,9 @@ class SbatMonitor:
                 self.settings.telegram_chat_id,
             )
 
-    def notify_users_and_update_db(self, time_slots: list[dict], exam_center_name: str, license_type: str) -> None:
+    def notify_users_and_update_db(self, time_slots: list[dict], exam_center_id: int, exam_center_name: str, license_type: str) -> None:
         current_time_slots = set()
-        notified_time_slots: set = get_notified_time_slots(self.db)
+        notified_time_slots: set = get_notified_time_slots(self.db, exam_center_id, license_type)
         message: str = ""
 
         for time_slot in time_slots:

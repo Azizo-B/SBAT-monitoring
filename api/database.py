@@ -26,8 +26,17 @@ def add_time_slot(db: Session, time_slot: dict, status: str) -> ExamTimeSlot:
     return db_time_slot
 
 
-def get_notified_time_slots(db: Session) -> set:
-    return {time_slot.exam_id for time_slot in db.query(ExamTimeSlot).filter(ExamTimeSlot.status == "notified").all()}
+def get_notified_time_slots(db: Session, exam_center_id: int, license_type: str) -> set:
+    return {
+        time_slot.exam_id
+        for time_slot in db.query(ExamTimeSlot)
+        .filter(
+            ExamTimeSlot.status == "notified",
+            ExamTimeSlot.exam_center_id == exam_center_id,
+            ExamTimeSlot.types_blob.like(f"%{license_type}%"),
+        )
+        .all()
+    }
 
 
 def get_time_slot_status(db: Session, exam_id: str) -> str | None:
