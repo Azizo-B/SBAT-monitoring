@@ -4,7 +4,7 @@
 
 The **SBAT Monitoring System** is a Python API designed to monitor and notify users of available driving exam time slots from the SBAT API. The system periodically checks for new available time slots and sends notifications via email and Telegram when new slots open up. It also tracks the total runtime and provides status updates on the monitoring process.
 
-[Watch the Demo Video](SBAT-monitoring-demo.mp4)
+[Watch the Demo Video](https://storage.googleapis.com/random-data-bucket/SBAT-monitoring.mp4)
 
 ## Table of Contents
 
