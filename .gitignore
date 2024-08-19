@@ -1,9 +1,0 @@
-.venv
-database.db
-.env
-.vscode
-*.pyc
-alembic.ini
-alembic/
-tmp/
-google_credentials.json
