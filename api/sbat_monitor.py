@@ -1,19 +1,16 @@
 import asyncio
-import json
 from datetime import datetime, timedelta
 from multiprocessing import AuthenticationError
 from typing import Literal, NoReturn
 
+import httpx
 import jwt
-from requests import Response, post
-from sqlalchemy.orm.session import Session
-
-from api.models import SbatRequest
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from .database import (
     add_sbat_request,
     add_time_slot,
-    get_all_subscribers,
+    get_all_subscribed_mails,
     get_last_sbat_auth_request,
     get_notified_time_slots,
     get_time_slot_status,
@@ -21,8 +18,8 @@ from .database import (
     set_time_slot_status,
 )
 from .dependencies import Settings
-from .models import EXAM_CENTER_MAP, MonitorConfiguration, MonitorStatus
-from .utils import send_email_to, send_telegram_message
+from .models import EXAM_CENTER_MAP, MonitorConfiguration, MonitorStatus, SbatRequestRead
+from .utils import send_email, send_telegram_message
 
 
 class SbatMonitor:
@@ -38,8 +35,8 @@ class SbatMonitor:
         "Accept-Encoding": "gzip, deflate, br",
     }
 
-    def __init__(self, db: Session, settings: Settings, config: MonitorConfiguration) -> None:
-        self.db: Session = db
+    def __init__(self, db: AsyncIOMotorDatabase, settings: Settings, config: MonitorConfiguration) -> None:
+        self.db: AsyncIOMotorDatabase = db
         self.settings: Settings = settings
 
         # Initialize with default values to ensure consistency
@@ -122,30 +119,31 @@ class SbatMonitor:
             task_exception=str(self.task.exception()) if self.task and self.task.done() and self.task.exception() else None,
         )
 
-    def authenticate(self) -> str:
-        last_request: SbatRequest | None = get_last_sbat_auth_request(self.db)
+    async def authenticate(self) -> str:
+        last_request: SbatRequestRead | None = await get_last_sbat_auth_request(self.db)
         if last_request:
             try:
-                payload: dict = jwt.decode(last_request.response_body, options={"verify_signature": False})
+                payload: dict = jwt.decode(last_request.response_body.get("token"), options={"verify_signature": False})
                 if datetime.now() < datetime.fromtimestamp(payload["exp"]):
-                    return last_request.response_body
-            except:  # pylint: disable=bare-except
+                    return last_request.response_body.get("token")
+            except (jwt.DecodeError, jwt.InvalidTokenError, jwt.ExpiredSignatureError):
                 pass
 
-        auth_response: Response = post(
-            self.AUTH_URL,
-            json={"username": self.settings.sbat_username, "password": self.settings.sbat_password},
-            headers=self.STANDARD_HEADERS,
-            timeout=60,
-        )
+        async with httpx.AsyncClient() as client:
+            auth_response: httpx.Response = await client.post(
+                self.AUTH_URL,
+                json={"username": self.settings.sbat_username, "password": self.settings.sbat_password},
+                headers=self.STANDARD_HEADERS,
+                timeout=60,
+            )
 
-        add_sbat_request(
-            self.db,
-            self.settings.sbat_username,
-            "authentication",
+        await add_sbat_request(
+            db=self.db,
+            email_used=self.settings.sbat_username,
+            request_type="authentication",
             url=self.AUTH_URL,
             response=auth_response.status_code,
-            response_body=auth_response.text,
+            response_body={"token": auth_response.text},
         )
 
         if auth_response.status_code == 200:
@@ -155,14 +153,14 @@ class SbatMonitor:
             raise AuthenticationError("Authentication failed")
 
     async def check_for_time_slots(self) -> NoReturn:
-        token: str = self.authenticate()
+        token: str = await self.authenticate()
         headers: dict[str, str] = {**self.STANDARD_HEADERS, "Authorization": f"Bearer {token}"}
 
         while True:
             for license_type in self.license_types:
                 for exam_center_id in self.exam_center_ids:
                     exam_center_name: str = EXAM_CENTER_MAP[exam_center_id]
-                    response: Response = self._perform_check(headers, license_type, exam_center_id, exam_center_name)
+                    response: httpx.Response = await self._perform_check(headers, license_type, exam_center_id, exam_center_name)
                     print(
                         f"Response status code {response.status_code}",
                         f"for license type '{license_type}' in '{exam_center_name}', {response.text}",
@@ -170,48 +168,52 @@ class SbatMonitor:
 
                     # possible exp of token
                     if self._is_exp_error(response):
-                        headers: dict[str, str] = {**self.STANDARD_HEADERS, "Authorization": f"Bearer {self.authenticate()}"}
+                        headers: dict[str, str] = {**self.STANDARD_HEADERS, "Authorization": f"Bearer {await self.authenticate()}"}
                         continue
 
-                    self._handle_response(response, license_type, exam_center_id)
+                    await self._handle_response(response, license_type, exam_center_id)
                     await asyncio.sleep(self.seconds_inbetween)
 
-    def _perform_check(self, headers: dict[str, str], license_type: str, exam_center_id: int, exam_center_name: str) -> Response:
+    async def _perform_check(
+        self, headers: dict[str, str], license_type: str, exam_center_id: int, exam_center_name: str
+    ) -> httpx.Response:
         print(f"Checking '{exam_center_name}' for new time slots for license type '{license_type}'...")
-        body: dict = {
-            "examCenterId": exam_center_id,
-            "licenseType": license_type,
-            "examType": "E2",
-            "startDate": datetime.combine(datetime.now().date(), datetime.min.time()).isoformat(),
-        }
-        response: Response = post(
-            self.CHECK_URL,
-            headers=headers,
-            json=body,
-            timeout=60,
+        async with httpx.AsyncClient() as client:
+            body: dict = {
+                "examCenterId": exam_center_id,
+                "licenseType": license_type,
+                "examType": "E2",
+                "startDate": datetime.combine(datetime.now().date(), datetime.min.time()).isoformat(),
+            }
+            response: httpx.Response = await client.post(
+                self.CHECK_URL,
+                headers=headers,
+                json=body,
+                timeout=60,
+            )
+
+        await add_sbat_request(
+            db=self.db,
+            email_used=self.settings.sbat_username,
+            request_type="check_for_time_slots",
+            url=self.CHECK_URL,
+            request_body=body,
+            response=response.status_code,
+            response_body=response.text if response.status_code != 200 else None,
         )
 
-        add_sbat_request(
-            self.db,
-            self.settings.sbat_username,
-            "check_for_time_slots",
-            self.CHECK_URL,
-            json.dumps(body),
-            response.status_code,
-            response.text if response.status_code != 200 else None,
-        )
         return response
 
-    def _is_exp_error(self, response: Response) -> bool:
+    def _is_exp_error(self, response: httpx.Response) -> bool:
         www_authenticate: str | None = response.headers.get("WWW-Authenticate")
         return response.status_code == 401 and www_authenticate and "The token is expired" in www_authenticate
 
-    def _handle_response(self, response: Response, license_type: str, exam_center_id: int) -> None:
+    async def _handle_response(self, response: httpx.Response, license_type: str, exam_center_id: int) -> None:
         exam_center_name: str = EXAM_CENTER_MAP[exam_center_id]
         if response.status_code == 200:
             data: dict = response.json()
             print(data)
-            self.notify_users_and_update_db(data, exam_center_id, exam_center_name, license_type)
+            await self.notify_users_and_update_db(data, exam_center_id, exam_center_name, license_type)
 
         else:
             www_authenticate: str | None = response.headers.get("WWW-Authenticate")
@@ -221,15 +223,17 @@ class SbatMonitor:
                 f"Response Body: {response.text}. "
                 f"WWW-Authenticate Header: {www_authenticate}"
             )
-            send_telegram_message(
+            await send_telegram_message(
                 f"Got unknown {response.status_code} error: {error_message}",
                 self.settings.telegram_bot_token,
                 self.settings.telegram_chat_id,
             )
 
-    def notify_users_and_update_db(self, time_slots: list[dict], exam_center_id: int, exam_center_name: str, license_type: str) -> None:
+    async def notify_users_and_update_db(
+        self, time_slots: list[dict], exam_center_id: int, exam_center_name: str, license_type: str
+    ) -> None:
         current_time_slots = set()
-        notified_time_slots: set = get_notified_time_slots(self.db, exam_center_id, license_type)
+        notified_time_slots: set[int] = await get_notified_time_slots(self.db, exam_center_id, license_type)
         message: str = ""
 
         for time_slot in time_slots:
@@ -244,25 +248,26 @@ class SbatMonitor:
                 if new_time_slot_messag not in message:
                     message += new_time_slot_messag
 
-                if get_time_slot_status(self.db, exam_id) == "taken":
-                    set_time_slot_status(self.db, exam_id, "notified")
+                if await get_time_slot_status(self.db, exam_id) == "taken":
+                    await set_time_slot_status(self.db, exam_id, "notified")
                 else:
-                    add_time_slot(self.db, time_slot, status="notified")
+                    await add_time_slot(self.db, time_slot, status="notified")
 
         if message:
             subject: str = f"New driving exam time slots available for license type '{license_type}' at exam center '{exam_center_name}':"
             message: str = subject + "\n\n" + message
-            send_email_to(
+            recipients: list[str] = await get_all_subscribed_mails(self.db)
+            send_email(
                 subject,
-                message,
-                get_all_subscribers(self.db),
+                recipients,
                 self.settings.sender_email,
                 self.settings.sender_password,
                 self.settings.smtp_server,
                 self.settings.smtp_port,
+                message=message,
             )
-            send_telegram_message(message, self.settings.telegram_bot_token, self.settings.telegram_chat_id)
+            await send_telegram_message(message, self.settings.telegram_bot_token, self.settings.telegram_chat_id)
 
         for exam_id in notified_time_slots - current_time_slots:
-            set_time_slot_status(self.db, exam_id, "taken")
-            set_first_taken_at(self.db, exam_id)
+            await set_time_slot_status(self.db, exam_id, "taken")
+            await set_first_taken_at(self.db, exam_id)

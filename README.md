@@ -28,10 +28,6 @@ The **SBAT Monitoring System** is a Python API designed to monitor and notify us
 
   So, instead of pushing the limits, I stuck to a more straightforward approach that stays within the guidelines and keeps things fair for everyone.
 
-- ### SQLite Database with Google Cloud Storage (GCS)
-
-  The application uses SQLite as its local database for simplicity and cost-effectiveness. SQLite is a serverless, self-contained database engine, which means it does not require a separate server process. By storing the SQLite database file in Google Cloud Storage (GCS), the application ensures data persistence and backup while keeping costs low. This approach avoids the expenses associated with running a cloud SQL instance continuously, making it a more economical solution for 24/7 operation.
-
 - ### Singleton Pattern for SbatMonitor
 
   The `SbatMonitor` class is designed as a singleton. This design choice ensures that only one instance of the monitor is created and shared across the application. This pattern prevents multiple instances from running concurrently, which could lead to conflicting operations. It also simplifies the management and tracking of the monitoring task's state, providing a consistent and controlled environment.
@@ -161,7 +157,7 @@ This section explains how to set up the SBAT Monitoring System on your local mac
 
 ### DB Queries Endpoints
 
-- **`GET /request`**
+- **`GET /requests`**
 
   Retrieves all SBAT request records from the database.
 
@@ -232,5 +228,5 @@ Here’s an example of how you might configure the `MonitorConfiguration`:
 
 6. **Querying the Database**
 
-   - User sends `GET` requests to `/request` or `/exam-time-slots` to retrieve records from the database.
+   - User sends `GET` requests to `/requests` or `/exam-time-slots` to retrieve records from the database.
    - System returns the requested data in JSON format.

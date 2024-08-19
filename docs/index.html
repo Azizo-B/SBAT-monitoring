@@ -1,16 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>License Alerts - Get Notified for Available Exam Slots</title>
+    <meta
+      name="description"
+      content="Blijf op de hoogte van beschikbare rijexamenplekken in Sint-Denijs-Westrem, Eeklo, Brakel, Erembodegem en Sint-Niklaas via e-mail of Telegram met onze meldingsservice."
+    />
+
+    <meta
+      name="keywords"
+      content="sbat, rijexamen, meldingen, e-mail, Telegram, rijexamens, beschikbaarheid, Sint-Denijs-Westrem, Eeklo, Brakel, Erembodegem, Sint-Niklaas"
+    />
+    <title>
+      Rijexamenmeldingen - Ontvang Meldingen voor Beschikbare Examens
+    </title>
     <link rel="icon" href="assets/logo.png" />
+    <link rel="stylesheet" href="assets/styles/main.css" />
     <style>
+      html {
+        height: 100%;
+      }
       body {
         font-family: "Arial", sans-serif;
         margin: 0;
         padding: 0;
         color: #333;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
       }
 
       header {
@@ -18,6 +36,9 @@
         background-color: #333;
         color: #fff;
         padding: 20px 0;
+      }
+      main {
+        flex: 1;
       }
 
       .navbar {
@@ -86,25 +107,29 @@
 
       .features,
       .pricing,
-      .contact {
+      .contact,
+      .custom-settings {
         padding: 40px 20px;
         text-align: center;
       }
 
       .features h2,
       .pricing h2,
-      .contact h2 {
+      .contact h2,
+      .custom-settings h2 {
         font-size: 2rem;
         margin-bottom: 20px;
       }
 
-      .features-container {
+      .features-container,
+      .exam-centers-list {
         display: flex;
         justify-content: space-around;
         flex-wrap: wrap;
       }
 
-      .feature-box {
+      .feature-box,
+      .exam-center {
         flex: 1 1 300px;
         margin: 10px;
         padding: 20px;
@@ -125,72 +150,82 @@
         padding: 20px;
         margin-top: 40px;
       }
+
+      .exam-centers-info {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 10px;
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+      }
     </style>
   </head>
   <body>
     <header class="header">
-      <nav class="navbar">
-        <a href="#" class="logo">
-          <!-- <img src="assets/logo.png" alt="SBAT Alerts Logo" /> -->
-        </a>
-        <!-- <ul class="nav-links">
-          <li><a href="#features">Features</a></li>
-          <li><a href="#pricing">Pricing</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul> -->
-      </nav>
       <div class="banner">
         <div class="banner-text">
-          <h1>Never Miss an Available Driving Exam Slot Again!</h1>
+          <h1>Mis Nooit Meer een Beschikbare Rijexamenplek!</h1>
           <p>
-            Stay updated with the latest driving exam slot openings via email or
-            Telegram.
+            Blijf op de hoogte van de laatste openingen voor rijexamens via
+            e-mail of Telegram.
           </p>
-          <a href="#join" class="cta-button">Join Now</a>
+          <a
+            href="https://buy.stripe.com/test_fZe9Cgb193Nmenm3cd"
+            class="cta-button"
+            >Word Lid</a
+          >
         </div>
-        <!-- <img src="assets/banner.jpg" alt="Banner Image" /> -->
       </div>
     </header>
-    <section id="features" class="features">
-      <h2>Features</h2>
-      <div class="features-container">
-        <div class="feature-box">
-          <h3>Real-Time Notifications</h3>
-          <p>Get notified instantly when new driving exam slots open up.</p>
+    <main>
+      <section id="features" class="features">
+        <h2>Functies</h2>
+        <div class="features-container">
+          <div class="feature-box">
+            <h3>Realtime Meldingen</h3>
+            <p>
+              Ontvang direct meldingen wanneer nieuwe rijexamenplekken
+              beschikbaar komen.
+            </p>
+          </div>
+          <div class="feature-box">
+            <h3>Meerdere Meldingskanalen</h3>
+            <p>Ontvang meldingen via e-mail en Telegram voor maximaal gemak.</p>
+          </div>
+          <div class="feature-box">
+            <h3>Aanpasbare Instellingen</h3>
+            <p>
+              Stel je voorkeuren in voor specifieke type rijbewijzen en
+              examencentra, zoals Sint-Denijs-Westrem en Andere Centra.
+            </p>
+          </div>
         </div>
-        <div class="feature-box">
-          <h3>Multiple Notification Channels</h3>
-          <p>Receive alerts via email and Telegram for maximum convenience.</p>
-        </div>
-        <div class="feature-box">
-          <h3>Customizable Settings</h3>
-          <p>
-            Set your preferences for specific exam centers and license types.
-          </p>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section id="pricing" class="pricing">
-      <h2>Pricing</h2>
-      <p>Get real-time updates and never miss an exam slot again.</p>
-      <a href="#join" class="cta-button">Join Now</a>
-    </section>
+      <section id="pricing" class="pricing">
+        <h2>Prijzen</h2>
+        <p>Ontvang realtime updates en mis nooit meer een examenplek.</p>
+        <a
+          href="https://buy.stripe.com/test_fZe9Cgb193Nmenm3cd"
+          class="cta-button"
+          >Word Lid</a
+        >
+      </section>
 
-    <section id="contact" class="contact">
-      <h2>Contact Us</h2>
-      <p>
-        Have any questions? Reach out to us via email at
-        <a href="mailto:support@drivingexamalerts.be"
-          >support@drivingexamalerts.be</a
-        >.
-      </p>
-    </section>
-
+      <section id="contact" class="contact">
+        <h2>Neem Contact Op</h2>
+        <p>
+          Heb je vragen? Neem contact met ons op via e-mail op
+          <a href="mailto:rijexamenmeldingen@gmail.com"
+            >rijexamenmeldingen@gmail.com</a
+          >.
+        </p>
+      </section>
+    </main>
     <footer class="footer">
-      <p>All rights reserved.</p>
+      <p>&copy; Alle rechten voorbehouden.</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="assets/scripts/main.js"></script>
   </body>
 </html>

@@ -1,67 +1,10 @@
-from datetime import datetime
-from typing import Literal
+from datetime import UTC, datetime
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, EmailStr, PositiveInt, field_validator
-from sqlalchemy import Boolean, Column, DateTime, Integer, String
+from bson import ObjectId
+from pydantic import BaseModel, BeforeValidator, EmailStr, PositiveInt, field_validator
 
-from .dependencies import Base
-
-
-class Subscriber(Base):
-    __tablename__: str = "subscribers"
-    email = Column(String, primary_key=True, index=True)
-
-
-class SbatRequest(Base):
-    __tablename__: str = "sbat_requests"
-
-    id = Column(Integer, primary_key=True, index=True)
-    email_used = Column(String, nullable=False)
-    timestamp = Column(DateTime, nullable=False, default=datetime.now)
-    request_type = Column(String, nullable=False)
-    request_body = Column(String, nullable=True)
-    response = Column(String, nullable=True)
-    response_body = Column(String, nullable=True)
-    url = Column(String, nullable=False)
-
-
-class ExamTimeSlot(Base):
-    __tablename__: str = "exam_time_slots"
-
-    id = Column(Integer, primary_key=True, index=True)
-    exam_id = Column(Integer, unique=True, index=True)
-
-    first_found_at = Column(DateTime, nullable=False, default=datetime.now)
-    first_taken_at = Column(DateTime, nullable=True)
-    found_at = Column(DateTime, nullable=False, default=datetime.now)
-    taken_at = Column(DateTime, nullable=True)
-
-    start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime, nullable=False)
-    status = Column(String, nullable=False)
-
-    is_public = Column(Boolean, nullable=True)
-    day_id = Column(Integer, nullable=True)
-    driving_school = Column(String, nullable=True)
-    exam_center_id = Column(Integer, nullable=True)
-    exam_type = Column(String, nullable=True)
-    examinee = Column(String, nullable=True)
-    types_blob = Column(String, nullable=True)
-
-
-EXAM_CENTER_MAP: dict[int, str] = {1: "Sint-Denijs-Westrem", 7: "Brakel", 8: "Eeklo", 9: "Erembodegem", 10: "Sint-Niklaas"}
-
-
-class MonitorConfiguration(BaseModel):
-    license_types: list[Literal["B", "AM"]] = ["B"]
-    exam_center_ids: list[int] = [1]
-    seconds_inbetween: PositiveInt = 300
-
-    @field_validator("exam_center_ids")
-    def validate_exam_center_ids(cls, value):  # pylint: disable=no-self-argument
-        if not all(id in EXAM_CENTER_MAP for id in value):
-            raise ValueError("One or more exam center IDs are invalid.")
-        return value
+PyObjectId = Annotated[str, BeforeValidator(lambda v: str(ObjectId(v)))]
 
 
 class MonitorStatus(BaseModel):
@@ -77,37 +20,67 @@ class MonitorStatus(BaseModel):
     task_exception: str | None = None
 
 
-class SubscriptionRequest(BaseModel):
+EXAM_CENTER_MAP: dict[int, str] = {1: "sintdenijswestrem", 7: "brakel", 8: "eeklo", 9: "erembodegem", 10: "sintniklaas"}
+
+
+class MonitorPreferences(BaseModel):
+    license_types: list[Literal["B", "AM"]] = ["B"]
+    exam_center_ids: list[int] = [1]
+
+    @field_validator("exam_center_ids")
+    def validate_exam_center_ids(cls, value):  # pylint: disable=no-self-argument
+        if not all(id in EXAM_CENTER_MAP for id in value):
+            raise ValueError("One or more exam center IDs are invalid.")
+        return value
+
+
+class MonitorConfiguration(MonitorPreferences):
+    seconds_inbetween: PositiveInt = 300
+
+
+class SubscriberBase(BaseModel):
+    stripe_ids: list[str]
+    name: str
+    telegram_username: str
     email: EmailStr
+    phone: str
+    extra_details: dict
+    total_spent: int
+    monitoring_preferences: MonitorPreferences
 
 
-class SbatRequestBaseSchema(BaseModel):
+class SubscriberCreate(SubscriberBase):
+    pass
+
+
+class SubscriberRead(SubscriberBase):
+    _id: PyObjectId
+
+
+class SbatRequestBase(BaseModel):
     timestamp: datetime
     request_type: str
-    request_body: str | None
-    response: str | None
-
+    request_body: dict | None = None
+    response: int | None = None
     url: str
-
-    class Config:
-        from_attributes = True
-
-
-class SbatRequestCreateSchema(SbatRequestBaseSchema):
     email_used: str
+    response_body: dict | None = None
 
 
-class SbatRequestReadSchema(SbatRequestBaseSchema):
-    id: int
+class SbatRequestCreate(SbatRequestBase):
+    pass
 
 
-class ExamTimeSlotSchema(BaseModel):
-    id: int
+class SbatRequestRead(SbatRequestBase):
+    _id: PyObjectId
+
+
+class ExamTimeSlotBase(BaseModel):
     exam_id: int
 
-    first_found_at: datetime
+    first_found_at: datetime = datetime.now(UTC)
     first_taken_at: datetime | None = None
-    found_at: datetime
+    found_at: datetime = datetime.now(UTC)
     taken_at: datetime | None = None
 
     start_time: datetime
@@ -120,7 +93,12 @@ class ExamTimeSlotSchema(BaseModel):
     exam_center_id: int | None = None
     exam_type: str | None = None
     examinee: str | None = None
-    types_blob: str | None = None
+    types_blob: list[str]
 
-    class Config:
-        from_attributes = True
+
+class ExamTimeSlotCreate(ExamTimeSlotBase):
+    pass
+
+
+class ExamTimeSlotRead(ExamTimeSlotBase):
+    _id: PyObjectId

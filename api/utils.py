@@ -1,39 +1,18 @@
 import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+from email.message import EmailMessage
+from email.utils import formatdate
 
-import requests
+import httpx
 from google.cloud import storage
+from jinja2 import Environment, FileSystemLoader, Template
 
 
-def send_telegram_message(message: str, bot_token: str, chat_id: str) -> None:
+async def send_telegram_message(message: str, bot_token: str, chat_id: str) -> None:
     url: str = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     payload: dict[str, str] = {"chat_id": chat_id, "text": message}
-    response: requests.Response = requests.post(url, data=payload, timeout=1000)
+    async with httpx.AsyncClient() as client:
+        response: httpx.Response = client.post(url, data=payload, timeout=10)
     print(f"Message sent to telegram chat: {chat_id} \nResponse: {response.status_code}")
-
-
-def send_email_to(subject: str, message: str, recipient_list: list[str], sender: str, password: str, smpt_server: str, smtp_port) -> None:
-    """Send an email to the provided recipients."""
-    if not recipient_list:
-        print("No recipients provided")
-        return
-
-    msg = MIMEMultipart()
-    msg["From"] = sender
-    msg["Subject"] = subject
-    msg.attach(MIMEText(message, "plain"))
-
-    try:
-        with smtplib.SMTP(smpt_server, smtp_port) as server:
-            server.starttls()
-            server.login(sender, password)
-            for recipient in recipient_list:
-                msg["To"] = recipient
-                server.sendmail(sender, recipient, msg.as_string())
-                print(f"Email sent to {recipient}")
-    except Exception as e:  # pylint: disable=broad-except
-        print(f"Failed to send email: {e}")
 
 
 def download_file_from_gcs(bucket_name: str, blob_name: str, destination_filename: str) -> None:
@@ -52,3 +31,55 @@ def upload_file_to_gcs(bucket_name: str, blob_name: str, source_filename: str) -
     blob: storage.Blob = bucket.blob(blob_name)
     blob.upload_from_filename(source_filename)
     print(f"Uploaded database from {source_filename} to {blob_name}")
+
+
+def render_template(template_name: str, **kwargs) -> str:
+    """Render a Jinja2 template with given variables."""
+    env = Environment(loader=FileSystemLoader("templates"))
+    template: Template = env.get_template(template_name)
+    return template.render(**kwargs)
+
+
+def send_email(
+    subject: str,
+    recipient_list: list[str],
+    sender: str,
+    password: str,
+    smtp_server: str,
+    smtp_port: int,
+    attachments: list[str] | None = None,
+    is_html: bool = False,
+    message: str | None = None,
+    html_template: str | None = None,
+    **kwargs,
+):
+    """Send an email to the provided recipients."""
+    if not recipient_list:
+        print("No recipients provided")
+        return
+    msg = EmailMessage()
+    msg["From"] = sender
+    msg["Subject"] = subject
+    msg["Date"] = formatdate(localtime=True)
+
+    if is_html and html_template:
+        template: str = render_template(html_template, **kwargs)
+        msg.add_alternative(template, subtype="html")
+    else:
+        msg.set_content(message)
+
+    if attachments:
+        print("cannot add attachment is not implemented")
+
+    try:
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            server.login(sender, password)
+            for recipient in recipient_list:
+                msg["To"] = recipient
+                server.send_message(msg)
+                print(f"Email sent to {recipient}")
+    except Exception as e:  # pylint: disable=broad-except
+        print(f"Failed to send email: {e}")

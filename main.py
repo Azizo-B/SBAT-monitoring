@@ -3,22 +3,27 @@ from typing import AsyncGenerator
 
 from fastapi import FastAPI
 
-from api.dependencies import Base, Settings, engine, get_settings
+from api.dependencies import Settings, client, get_settings
 from api.routes import router
-from api.utils import download_file_from_gcs, upload_file_to_gcs
+from api.utils import send_email
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:  # pylint: disable=redefined-outer-name, unused-argument
     settings: Settings = get_settings()
     try:
-        if settings.google_application_credentials:
-            download_file_from_gcs(settings.bucket_name, settings.blob_name, settings.database_file)
-        Base.metadata.create_all(bind=engine)
+        send_email(
+            "test",
+            ["aziz.baatout@gmail.com"],
+            settings.sender_email,
+            settings.sender_password,
+            settings.smtp_server,
+            settings.smtp_port,
+            message="test",
+        )
         yield
     finally:
-        if settings.google_application_credentials:
-            upload_file_to_gcs(settings.bucket_name, settings.blob_name, settings.database_file)
+        client.close()
 
 
 app = FastAPI(title="SBAT Exam Time Slot Checker", lifespan=lifespan)

@@ -1,11 +1,8 @@
 from functools import lru_cache
-from typing import Generator
+from typing import AsyncGenerator
 
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pydantic_settings import BaseSettings
-from sqlalchemy import Engine, create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.session import Session
 
 
 class Settings(BaseSettings):
@@ -14,6 +11,10 @@ class Settings(BaseSettings):
     sbat_username: str
     sbat_password: str
 
+    stripe_secret_key: str
+    stripe_publishable_key: str
+    stripe_endpoint_secret: str
+
     telegram_bot_token: str | None = None
     telegram_chat_id: str | None = None
 
@@ -21,11 +22,6 @@ class Settings(BaseSettings):
     sender_password: str | None = None
     smtp_server: str | None = None
     smtp_port: int | None = None
-
-    google_application_credentials: str | None = None
-    database_file: str | None = None
-    bucket_name: str | None = None
-    blob_name: str | None = None
 
     class Config:
         env_file: str = ".env"
@@ -36,23 +32,17 @@ def get_settings() -> Settings:
     return Settings()
 
 
-engine: Engine = create_engine(get_settings().database_url, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+client: AsyncIOMotorClient = AsyncIOMotorClient(get_settings().database_url)
 
 
-def get_db() -> Generator:
-    db: Session = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+async def get_db() -> AsyncGenerator[AsyncIOMotorDatabase, None]:
+    yield client["rijexamen-meldingen"]
 
 
 @lru_cache
 def get_sbat_monitor():
-    db: Session = next(get_db())
     settings: Settings = get_settings()
+    db: AsyncIOMotorDatabase = client["rijexamen-meldingen"]
 
     from .models import MonitorConfiguration  # pylint: disable=import-outside-toplevel
     from .sbat_monitor import SbatMonitor  # pylint: disable=import-outside-toplevel
