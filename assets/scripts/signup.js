@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       try {
         const response = await fetch(
-          "http://35.202.199.95:8080/auth/subscribe",
+          "https://api.rijexamenmeldingen.be/auth/subscribe",
           {
             method: "POST",
             headers: {

@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
       formEntries.append("password", formData.get("password"));
 
       try {
-        const response = await fetch("http://35.202.199.95:8080/auth/token", {
+        const response = await fetch("https://api.rijexamenmeldingen.be/auth/token", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",

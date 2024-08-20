@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     try {
-      const response = await fetch("http://35.202.199.95:8080/auth/user/me", {
+      const response = await fetch("https://api.rijexamenmeldingen.be/auth/user/me", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           try {
             const saveResponse = await fetch(
-              "http://35.202.199.95:8080/auth/user/preferences",
+              "https://api.rijexamenmeldingen.be/auth/user/preferences",
               {
                 method: "POST",
                 headers: {
