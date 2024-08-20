@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from typing import Annotated, Literal
 
 from bson import ObjectId
-from pydantic import BaseModel, BeforeValidator, EmailStr, PositiveInt, field_validator
+from pydantic import BaseModel, BeforeValidator, EmailStr, Field, PositiveInt, field_validator
 
 PyObjectId = Annotated[str, BeforeValidator(lambda v: str(ObjectId(v)))]
 
@@ -39,22 +39,24 @@ class MonitorConfiguration(MonitorPreferences):
 
 
 class SubscriberBase(BaseModel):
-    stripe_ids: list[str]
     name: str
-    telegram_username: str | None
     email: EmailStr
-    phone: str | None
-    extra_details: dict
+    stripe_ids: list[str] = []
+    phone: str | None = None
+    telegram_username: str | None = None
+    extra_details: dict = {}
     total_spent: int = 0
-    monitoring_preferences: MonitorPreferences
+    role: str = "user"
+    monitoring_preferences: MonitorPreferences = MonitorPreferences()
 
 
 class SubscriberCreate(SubscriberBase):
-    pass
+    password: str
 
 
 class SubscriberRead(SubscriberBase):
-    _id: PyObjectId
+    id: PyObjectId = Field(..., alias="_id")
+    hashed_password: str
 
 
 class SbatRequestBase(BaseModel):
