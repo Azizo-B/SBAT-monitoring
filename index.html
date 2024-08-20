@@ -7,7 +7,6 @@
       name="description"
       content="Blijf op de hoogte van beschikbare rijexamenplekken in Sint-Denijs-Westrem, Eeklo, Brakel, Erembodegem en Sint-Niklaas via e-mail of Telegram met onze meldingsservice."
     />
-
     <meta
       name="keywords"
       content="sbat, rijexamen, meldingen, e-mail, Telegram, rijexamens, beschikbaarheid, Sint-Denijs-Westrem, Eeklo, Brakel, Erembodegem, Sint-Niklaas"
@@ -15,168 +14,28 @@
     <title>
       Rijexamenmeldingen - Ontvang Meldingen voor Beschikbare Examens
     </title>
-    <link rel="icon" href="assets/logo.png" />
-    <link rel="stylesheet" href="assets/styles/main.css" />
-    <style>
-      html {
-        height: 100%;
-      }
-      body {
-        font-family: "Arial", sans-serif;
-        margin: 0;
-        padding: 0;
-        color: #333;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-      }
-
-      header {
-        text-align: center;
-        background-color: #333;
-        color: #fff;
-        padding: 20px 0;
-      }
-      main {
-        flex: 1;
-      }
-
-      .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 20px;
-      }
-
-      .nav-links {
-        list-style: none;
-        display: flex;
-        margin: 0;
-        padding: 0;
-      }
-
-      .nav-links li {
-        margin-left: 20px;
-      }
-
-      .nav-links a {
-        color: #fff;
-        text-decoration: none;
-      }
-
-      .banner {
-        position: relative;
-        text-align: center;
-        width: 100%;
-      }
-
-      .banner img {
-        width: 100%;
-        height: auto;
-        opacity: 0.7;
-      }
-
-      .banner-text {
-        text-align: center;
-        padding: 20px;
-        box-sizing: border-box;
-      }
-
-      .banner-text h1 {
-        font-size: 3rem;
-        margin: 0;
-      }
-
-      .banner-text p {
-        font-size: 1.2rem;
-        margin: 10px 0;
-      }
-
-      .cta-button {
-        background-color: #ff5733;
-        color: #fff;
-        padding: 10px 20px;
-        text-decoration: none;
-        border-radius: 5px;
-        display: inline-block;
-      }
-
-      .cta-button:hover {
-        background-color: #e74c3c;
-      }
-
-      .features,
-      .pricing,
-      .contact,
-      .custom-settings {
-        padding: 40px 20px;
-        text-align: center;
-      }
-
-      .features h2,
-      .pricing h2,
-      .contact h2,
-      .custom-settings h2 {
-        font-size: 2rem;
-        margin-bottom: 20px;
-      }
-
-      .features-container,
-      .exam-centers-list {
-        display: flex;
-        justify-content: space-around;
-        flex-wrap: wrap;
-      }
-
-      .feature-box,
-      .exam-center {
-        flex: 1 1 300px;
-        margin: 10px;
-        padding: 20px;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        background-color: #f9f9f9;
-      }
-
-      .pricing p {
-        font-size: 1.5rem;
-        margin: 20px 0;
-      }
-
-      .footer {
-        background-color: #333;
-        color: #fff;
-        text-align: center;
-        padding: 20px;
-        margin-top: 40px;
-      }
-
-      .exam-centers-info {
-        font-size: 0.9rem;
-        color: #666;
-        margin-top: 10px;
-        border-top: 1px solid #ddd;
-        padding-top: 10px;
-      }
-    </style>
+    <link rel="icon" href="/assets/logo.jpg" />
+    <link rel="stylesheet" href="/assets/styles/main.css" />
   </head>
   <body>
     <header class="header">
-      <div class="banner">
-        <div class="banner-text">
-          <h1>Mis Nooit Meer een Beschikbare Rijexamenplek!</h1>
-          <p>
-            Blijf op de hoogte van de laatste openingen voor rijexamens via
-            e-mail of Telegram.
-          </p>
-          <a
-            href="https://buy.stripe.com/test_fZe9Cgb193Nmenm3cd"
-            class="cta-button"
-            >Word Lid</a
-          >
+      <div class="navbar">
+        <div class="banner">
+          <div class="banner-text">
+            <h1>Mis Nooit Meer een Beschikbare Rijexamenplek!</h1>
+            <p>
+              Blijf op de hoogte van de laatste openingen voor rijexamens via
+              e-mail of Telegram.
+            </p>
+            <a href="/signup" class="cta-button">Word Lid</a>
+          </div>
+        </div>
+        <div class="profile-icon" id="profile-icon">
+          <img src="/assets/user-icon.svg" alt="Profiel" />
         </div>
       </div>
     </header>
+
     <main>
       <section id="features" class="features">
         <h2>Functies</h2>
@@ -205,11 +64,7 @@
       <section id="pricing" class="pricing">
         <h2>Prijzen</h2>
         <p>Ontvang realtime updates en mis nooit meer een examenplek.</p>
-        <a
-          href="https://buy.stripe.com/test_fZe9Cgb193Nmenm3cd"
-          class="cta-button"
-          >Word Lid</a
-        >
+        <a href="/signup" class="cta-button">Word Lid</a>
       </section>
 
       <section id="contact" class="contact">
@@ -226,6 +81,6 @@
       <p>&copy; Alle rechten voorbehouden.</p>
     </footer>
 
-    <script src="assets/scripts/main.js"></script>
+    <script src="/assets/scripts/main.js"></script>
   </body>
 </html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+
+    <title>Profiel - Rijexamenmeldingen</title>
+    <link rel="icon" href="/assets/logo.jpg" />
+    <link rel="stylesheet" href="/assets/styles/profile.css" />
+  </head>
+  <body>
+    <div class="profile-container">
+      <h2>Profiel</h2>
+      <div class="profile-info">
+        <p><span>Naam:</span> <span id="user-name"></span></p>
+        <p>
+          <span>E-mailadres:</span>
+          <span id="user-email"></span>
+        </p>
+        <p><span>Telefoon:</span> <span id="user-phone"></span></p>
+        <p>
+          <span>Telegram Gebruikersnaam:</span>
+          <span id="user-telegram"></span>
+        </p>
+        <p>
+          <span>Abonnementsstatus:</span>
+          <span id="subscription-status">Niet Actief</span>
+        </p>
+      </div>
+      <div class="preferences">
+        <p>
+          Deze voorkeuren worden toegepast op e-mails; via Telegram ontvang je
+          alle meldingen zonder filtering.
+        </p>
+        <p><span>Rijbewijzen:</span></p>
+        <div class="checkbox-container">
+          <label
+            ><input type="checkbox" name="license_types" value="B" disabled />
+            B</label
+          >
+          <label
+            ><input type="checkbox" name="license_types" value="AM" disabled />
+            AM</label
+          >
+        </div>
+        <p><span>Examencentra:</span></p>
+        <div class="checkbox-container">
+          <label
+            ><input type="checkbox" name="exam_center_ids" value="1" disabled />
+            Sint-Denijs-Westrem</label
+          >
+          <label
+            ><input type="checkbox" name="exam_center_ids" value="7" disabled />
+            Brakel</label
+          >
+          <label
+            ><input type="checkbox" name="exam_center_ids" value="8" disabled />
+            Eeklo</label
+          >
+          <label
+            ><input type="checkbox" name="exam_center_ids" value="9" disabled />
+            Erembodegem</label
+          >
+          <label
+            ><input
+              type="checkbox"
+              name="exam_center_ids"
+              value="10"
+              disabled
+            />
+            Sint-Niklaas</label
+          >
+        </div>
+      </div>
+      <div class="button-group">
+        <button id="submit-preferences" disabled>Voorkeuren Opslaan</button>
+        <button id="activate-subscription">Activeer Abonnement (€5)</button>
+      </div>
+    </div>
+
+    <script src="/assets/scripts/profile.js"></script>
+  </body>
+</html>
