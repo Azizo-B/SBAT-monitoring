@@ -41,11 +41,11 @@ class MonitorConfiguration(MonitorPreferences):
 class SubscriberBase(BaseModel):
     stripe_ids: list[str]
     name: str
-    telegram_username: str
+    telegram_username: str | None
     email: EmailStr
-    phone: str
+    phone: str | None
     extra_details: dict
-    total_spent: int
+    total_spent: int = 0
     monitoring_preferences: MonitorPreferences
 
 

@@ -119,13 +119,13 @@ async def handle_payment_link_session(db: AsyncIOMotorDatabase, settings: Settin
     telegram_link: str | None = await create_single_use_invite_link(settings.telegram_chat_id, settings.telegram_bot_token, user.name)
     send_email(
         "Betaling geslaagd! Uw voorkeuren zijn ontvangen.",
-        user.email,
+        [user.email],
         settings.sender_email,
         settings.sender_password,
-        settings.smtp_port,
         settings.smtp_server,
+        settings.smtp_port,
         is_html=True,
-        html_template="comfirmation_email.html",
+        html_template="confirmation_email.html",
         naam=user.name,
         telegram_link=telegram_link,
     )
@@ -140,7 +140,6 @@ async def create_single_use_invite_link(chat_id: str, bot_token: str, name: str 
         "member_limit": 1,
         "creates_join_request": False,
     }
-
     async with httpx.AsyncClient() as client:
         response: httpx.Response = await client.post(url, json=payload)
         if response.status_code == 200:
@@ -165,7 +164,9 @@ async def add_new_customer_from_session(db: AsyncIOMotorDatabase, session: dict)
         valid: SubscriberRead = SubscriberRead.model_validate(existing_user)
         valid.total_spent = valid.total_spent + amount_total
         valid.stripe_ids.append(session_id)
-        await db["subscribers"].insert_one(valid.model_dump())
+        await db["subscribers"].update_one(
+            {"_id": existing_user.get("_id")}, {"$set": {"total_spent": valid.total_spent, "stripe_ids": valid.stripe_ids}}
+        )
         return valid
 
     custom_fields: list = session.get("custom_fields", [])
@@ -184,6 +185,7 @@ async def add_new_customer_from_session(db: AsyncIOMotorDatabase, session: dict)
         telegram_username=telegram_username,
         email=email,
         phone=phone,
+        total_spent=amount_total,
         extra_details=customer_details,
         monitoring_preferences=mp,
     )

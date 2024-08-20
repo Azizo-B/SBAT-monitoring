@@ -15,6 +15,17 @@ async def send_telegram_message(message: str, bot_token: str, chat_id: str) -> N
     print(f"Message sent to telegram chat: {chat_id} \nResponse: {response.status_code}")
 
 
+def get_channel_id(bot_token: str):
+    response: httpx.Response = httpx.get(f"https://api.telegram.org/bot{bot_token}/getUpdates")
+    if response.status_code == 200:
+        data: dict = response.json()
+        result_list: list = data.get("result", [])
+        for result in result_list:
+            print(result)
+    else:
+        print(f"Failed to get updates. Response: {response.text}")
+
+
 def download_file_from_gcs(bucket_name: str, blob_name: str, destination_filename: str) -> None:
     """Download a file from GCS to the local filesystem."""
     client = storage.Client()
