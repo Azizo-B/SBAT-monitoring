@@ -4,12 +4,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
-
     <title>Profiel - Rijexamenmeldingen</title>
     <link rel="icon" href="/assets/logo.jpg" />
     <link rel="stylesheet" href="/assets/styles/profile.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      .back-arrow {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        font-size: 20px;
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        transition: color 0.3s ease;
+      }
+
+      .back-arrow:hover {
+        color: #007bff;
+      }
+
+      .back-arrow i {
+        margin-right: 8px;
+      }
+    </style>
   </head>
   <body>
+    <a href="/" class="back-arrow"><i class="fas fa-arrow-left"></i> Terug</a>
     <div class="profile-container">
       <h2>Profiel</h2>
       <div class="profile-info">

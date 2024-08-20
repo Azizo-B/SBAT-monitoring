@@ -47,10 +47,15 @@ main {
 
 .profile-icon {
   position: absolute;
-  right: 25px;
-  top: 7%;
+  right: 2%;
+  top: 0%;
   transform: translateY(-10%);
   cursor: pointer;
+  background-color: #666;
+  border-radius: 15px;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 2px;
 }
 
 .profile-icon img {
