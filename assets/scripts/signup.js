@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const signupForm = document.getElementById("signup-form");
     const submitButton = signupForm.querySelector("button[type='submit']");
 
-    loginForm.addEventListener("submit", async function (event) {
+    signupForm.addEventListener("submit", async function (event) {
       event.preventDefault();
 
       submitButton.disabled = true;
