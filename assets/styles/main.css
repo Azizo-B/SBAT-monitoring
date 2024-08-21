@@ -1,6 +1,7 @@
 html {
   height: 100%;
 }
+
 body {
   font-family: "Arial", sans-serif;
   margin: 0;
@@ -17,6 +18,7 @@ header {
   color: #fff;
   padding: 20px 0;
 }
+
 main {
   flex: 1;
 }
@@ -157,4 +159,120 @@ main {
   margin-top: 10px;
   border-top: 1px solid #ddd;
   padding-top: 10px;
+}
+
+/* FAQ Styles */
+
+
+.faq {
+  padding: 20px;
+}
+
+.faq h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.faq-item {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  /* Increased margin */
+  padding: 10px;
+  background-color: #f7f7f7;
+  /* Slight grey tint */
+}
+
+.faq-item button {
+  background-color: #f9f9f9;
+  color: #333;
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  /* Reduced padding for a smaller button */
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.faq-item button:hover {
+  background-color: #e9e9e9;
+}
+
+.faq-item button:after {
+  content: "\002B";
+  font-size: 1.5rem;
+  float: right;
+}
+
+.faq-item button.active:after {
+  content: "\2212";
+}
+
+.faq-item .faq-content {
+  display: none;
+  background-color: #f9f9f9;
+  padding: 12px;
+  /* Reduced padding */
+}
+
+.faq-item .faq-content p {
+  margin: 10px 0;
+}
+
+/* Step-by-Step "How It Works" Styles */
+.how-it-works {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.how-it-works h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.how-it-works .step {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+  box-sizing: border-box;
+  /* Ensure padding doesn't add to the width */
+  width: 100%;
+  max-width: 800px;
+}
+
+.how-it-works .step-number {
+  font-size: 1.2rem;
+  background-color: #ff5733;
+  color: #fff;
+  padding: 5px;
+  border-radius: 50%;
+  width: 25px;
+  /* Smaller step number */
+  height: 25px;
+  /* Smaller step number */
+  display: inline-block;
+  text-align: center;
+  margin-right: 10px;
+}
+
+.how-it-works .step h3 {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.how-it-works .step p {
+  margin-top: 10px;
+  font-size: 0.9rem;
 }

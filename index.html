@@ -25,7 +25,7 @@
           <div class="banner-text">
             <h1>Mis Nooit Meer een Beschikbare Rijexamenplek!</h1>
             <p>
-              Blijf op de hoogte van de laatste openingen voor rijexamens via
+              Blijf op de hoogte van de laatste beschikbare examenplekken via
               e-mail of Telegram.
             </p>
             <a href="/signup" class="cta-button">Word Lid</a>
@@ -38,6 +38,7 @@
     </header>
 
     <main>
+      <!-- Features and Pricing Sections -->
       <section id="features" class="features">
         <h2>Functies</h2>
         <div class="features-container">
@@ -45,7 +46,7 @@
             <h3>Realtime Meldingen</h3>
             <p>
               Ontvang direct meldingen wanneer nieuwe rijexamenplekken
-              beschikbaar komen.
+              beschikbaar zijn.
             </p>
           </div>
           <div class="feature-box">
@@ -63,14 +64,181 @@
       </section>
 
       <section id="pricing" class="pricing">
-        <h2>Prijzen</h2>
+        <h2>Prijs</h2>
         <p>
-          Ontvang realtime updates en mis nooit meer een examenplek voor slechts
-          €1 per maand.
+          Ontvang realtime updates en mis nooit meer een examenplek voor
+          <span
+            style="text-decoration: line-through; color: red; font-weight: bold"
+            >€10</span
+          >
+          <span style="font-weight: bold">€1</span> per maand.
+        </p>
+        <p>
+          <strong>Introductieaanbieding!</strong>
         </p>
         <a href="/signup" class="cta-button">Word Lid</a>
       </section>
 
+      <!-- How It Works Section (Step by Step) -->
+      <section id="how-it-works" class="how-it-works">
+        <h2>Hoe Het Werkt</h2>
+        <div class="step">
+          <span class="step-number">1</span>
+          <h3>Word Lid</h3>
+          <p>
+            <a href="/signup">Registreer je hier</a> om een account aan te
+            maken. Dit is de eerste stap om toegang te krijgen tot onze
+            meldingsservice.
+          </p>
+        </div>
+        <div class="step">
+          <span class="step-number">2</span>
+          <h3>Activeer je Abonnement</h3>
+          <p>
+            Na registratie moet je je abonnement activeren, dit kan je doen op
+            je <a href="/profile">profielpagina</a> . Je ontvangt vervolgens een
+            bevestigingsmail met een link naar onze Telegram-groep(en).
+          </p>
+        </div>
+        <div class="step">
+          <span class="step-number">3</span>
+          <h3>Ontvang Meldingen</h3>
+          <p>
+            Via e-mail en onze Telegram-groep(en) krijg je meldingen over
+            beschikbare rijexamenplekken.
+          </p>
+        </div>
+        <div class="step">
+          <span class="step-number">4</span>
+          <h3>Pas je Voorkeuren Aan</h3>
+          <p>
+            Ga naar je <a href="/profile">profielpagina</a> om je voorkeuren
+            voor examencentra en rijbewijssoorten aan te passen. Hier kun je
+            instellen in welke soort meldingen je geïnteresseerd bent, zoals
+            meldingen voor het rijbewijs B examen in Sint-Denijs-Westrem.
+          </p>
+        </div>
+      </section>
+
+      <!-- FAQ Section with Collapsible Rows -->
+      <section id="faq" class="faq">
+        <h2>Veelgestelde Vragen</h2>
+        <div class="faq-item">
+          <button onclick="toggleFaqContent(this)">
+            Welke soorten rijexamens worden gemeld?
+          </button>
+          <div class="faq-content">
+            <p>
+              Onze meldingsservice biedt updates voor verschillende soorten
+              rijexamens, waaronder praktijkexamens voor rijbewijs B en AM. U
+              kunt uw voorkeuren instellen om meldingen te ontvangen voor
+              specifieke rijbewijssoorten en examencentra, zoals
+              Sint-Denijs-Westrem, Eeklo, Brakel, Sint-Niklaas en Erembodegem.
+              In principe is elke soort rijbewijs mogelijk, en we zijn actief
+              bezig om dit verder uit te breiden. Als u specifieke wensen heeft,
+              kunt u ons hiernaar vragen, en we zullen deze direct implementeren
+              indien mogelijk. Dit zorgt ervoor dat u relevante informatie
+              ontvangt over beschikbare plekken die aansluiten bij uw
+              rijexamendoelen.
+            </p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button onclick="toggleFaqContent(this)">
+            Hoe ontvang ik meldingen voor rijexamens?
+          </button>
+          <div class="faq-content">
+            <p>
+              Nadat wij uw betaling hebben verwerkt, ontvangt u een
+              bevestigingsmail op het opgegeven e-mailadres. In deze e-mail
+              vindt u een link naar onze Telegram-groep, waar u directe
+              meldingen ontvangt over beschikbare rijexamenplekken voor uw
+              gekozen type rijbewijs, zoals rijbewijs B. U ontvangt ook
+              e-mailmeldingen op basis van uw voorkeuren, zoals praktijkexamens
+              en theorie-examens. Zorg ervoor dat uw e-mailinstellingen correct
+              zijn geconfigureerd om geen meldingen te missen.
+            </p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button onclick="toggleFaqContent(this)">
+            Hoe vaak worden meldingen verzonden?
+          </button>
+          <div class="faq-content">
+            <p>
+              Meldingen worden verzonden zodra er nieuwe beschikbare
+              rijexamenplekken worden gedetecteerd voor de door u geselecteerde
+              voorkeuren. Dit kan variëren afhankelijk van de beschikbaarheid
+              van examenplekken. U ontvangt zowel e-mailmeldingen als
+              Telegram-updates, zodat u altijd op de hoogte bent van de nieuwste
+              mogelijkheden om uw rijexamen te boeken.
+            </p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button onclick="toggleFaqContent(this)">
+            Kan ik mijn voorkeuren voor rijexamenmeldingen aanpassen?
+          </button>
+          <div class="faq-content">
+            <p>
+              Ja, u kunt uw voorkeuren voor rijexamenmeldingen op elk moment
+              wijzigen door naar uw profielpagina te gaan via
+              <a href="/profiel">deze link</a>. U wordt mogelijk gevraagd om in
+              te loggen om toegang te krijgen tot deze instellingen. Op uw
+              profielpagina kunt u uw voorkeuren voor specifieke
+              rijexamencentra, zoals Sint-Denijs-Westrem en Eeklo, en voor de
+              soorten rijexamens, zoals praktijkexamens voor rijbewijs B,
+              aanpassen.
+            </p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button onclick="toggleFaqContent(this)">
+            Wat moet ik doen als ik geen meldingen ontvang?
+          </button>
+          <div class="faq-content">
+            <p>
+              Als u geen meldingen ontvangt voor beschikbare rijexamenplekken,
+              controleer dan of uw e-mailadres correct is ingevoerd en of u
+              e-mailmeldingen en Telegram-updates heeft ingeschakeld. Zorg
+              ervoor dat onze berichten niet in uw spammap terechtkomen. Als u
+              nog steeds geen meldingen ontvangt, controleer dan uw voorkeuren
+              op uw profielpagina via <a href="/profiel">deze link</a>. U moet
+              mogelijk inloggen om uw voorkeuren te controleren. Neem contact
+              met ons op via
+              <a href="mailto:rijexamenmeldingen@gmail.com"
+                >rijexamenmeldingen@gmail.com</a
+              >
+              als u verdere hulp nodig heeft.
+            </p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button onclick="toggleFaqContent(this)">
+            Hoe kan ik me afmelden voor meldingen?
+          </button>
+          <div class="faq-content">
+            <p>
+              Als u zich wilt afmelden voor meldingen over beschikbare
+              rijexamenplekken, kunt u dit doen door in te loggen op uw
+              profielpagina en uw meldingsinstellingen te wijzigen. Ga naar
+              <a href="/profiel">deze link</a> om uw voorkeuren aan te passen. U
+              kunt daar kiezen om meldingen te stoppen voor specifieke
+              examencentra of rijbewijssoorten. Indien u problemen ondervindt,
+              kunt u ook contact met ons opnemen via
+              <a href="mailto:rijexamenmeldingen@gmail.com"
+                >rijexamenmeldingen@gmail.com</a
+              >.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Section -->
       <section id="contact" class="contact">
         <h2>Neem Contact Op</h2>
         <p>
@@ -81,10 +249,17 @@
         </p>
       </section>
     </main>
+
     <footer class="footer">
       <p>&copy; Alle rechten voorbehouden.</p>
     </footer>
 
-    <script src="/assets/scripts/main.js"></script>
+    <script>
+      function toggleFaqContent(button) {
+        const content = button.nextElementSibling;
+        const isOpen = button.classList.toggle("active");
+        content.style.display = isOpen ? "block" : "none";
+      }
+    </script>
   </body>
 </html>
