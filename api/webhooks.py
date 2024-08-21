@@ -6,14 +6,14 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from api import database
 
-from .dependencies import Settings, get_admin_user, get_db, get_settings
+from .dependencies import Settings, get_db, get_settings
 from .models import EXAM_CENTER_MAP, MonitorPreferences, SubscriberCreate, SubscriberRead
 from .utils import send_email
 
-webhooks = APIRouter(dependencies=[Depends(get_admin_user)])
+webhooks = APIRouter()
 
 
-@webhooks.post("/payment-link-webhook", tags=["Stripe"], dependencies=[])
+@webhooks.post("/payment-link-webhook", tags=["Stripe"])
 async def stripe_webhook(
     request: Request, settings: Settings = Depends(get_settings), db: AsyncIOMotorDatabase = Depends(get_db)
 ) -> dict[str, str]:

@@ -35,6 +35,11 @@ app.include_router(router)
 app.include_router(webhooks)
 
 
+@app.get("/health")
+def health_check() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 if __name__ == "__main__":
     import uvicorn
 

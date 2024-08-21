@@ -43,7 +43,9 @@ async def subscribe(subscriber: SubscriberCreate, db: AsyncIOMotorDatabase = Dep
     if existing_subscriber:
         raise HTTPException(status_code=400, detail="Email already subscribed")
 
-    await db["subscribers"].insert_one({**subscriber.model_dump(), "hashed_password": pwd_context.hash(subscriber.password)})
+    await db["subscribers"].insert_one(
+        {**subscriber.model_dump(exclude="password"), "hashed_password": pwd_context.hash(subscriber.password)}
+    )
     return {"message": "Subscribed successfully!"}
 
 
@@ -64,7 +66,7 @@ async def read_users_me(current_user: SubscriberRead = Depends(get_current_user)
     return current_user
 
 
-@auth.get("/user/preferences")
+@auth.post("/user/preferences")
 async def update_users_monitoring_preferences(
     preferences: MonitorPreferences, current_user=Depends(get_current_user), db: AsyncIOMotorDatabase = Depends(get_db)
 ) -> SubscriberRead:
