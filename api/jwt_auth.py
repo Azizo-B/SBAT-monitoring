@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 
 import jwt
+from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from passlib.context import CryptContext
-from pymongo.results import UpdateResult
 
 from .dependencies import Settings, get_current_user, get_db, get_settings
 from .models import MonitorPreferences, SubscriberCreate, SubscriberRead
@@ -18,12 +18,10 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 async def authenticate_user(username: str, password: str, db: AsyncIOMotorDatabase) -> SubscriberRead | None:
 
     subscriber: dict | None = await db["subscribers"].find_one({"email": username})
-    print(subscriber, username, password)
 
     if not subscriber:
         return
 
-    print(subscriber)
     if not pwd_context.verify(password, subscriber.get("hashed_password")):
         return
 
@@ -69,13 +67,8 @@ async def read_users_me(current_user: SubscriberRead = Depends(get_current_user)
 @auth.post("/user/preferences")
 async def update_users_monitoring_preferences(
     preferences: MonitorPreferences, current_user=Depends(get_current_user), db: AsyncIOMotorDatabase = Depends(get_db)
-) -> SubscriberRead:
-    result: UpdateResult = await db["subscribers"].update_one(
-        {"_id": current_user._id}, {"$set": {"monitoring_preferences": {**preferences.model_dump()}}}  # pylint:disable=protected-access
+) -> dict[str, str]:
+    await db["subscribers"].update_one(
+        {"_id": ObjectId(current_user.id)}, {"$set": {"monitoring_preferences": {**preferences.model_dump()}}}
     )
-    if result.modified_count == 1:
-        return {"detail": "Preferences saved!"}
-    raise HTTPException(
-        status_code=500,
-        detail="Error occured during preference update.",
-    )
+    return {"detail": "Preferences saved!"}

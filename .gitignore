@@ -7,3 +7,5 @@ alembic.ini
 alembic/
 tmp/
 google_credentials.json
+fullchain.pem
+privkey.pem

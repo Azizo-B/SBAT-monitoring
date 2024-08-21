@@ -76,8 +76,10 @@ async def get_subscribers(db: AsyncIOMotorDatabase) -> list[SubscriberRead]:
     return subscribers
 
 
-async def get_all_subscribed_mails(db: AsyncIOMotorDatabase) -> list[str]:
-    cursor: AsyncIOMotorCursor = db["subscribers"].find({}, {"email": 1})
+async def get_all_subscribed_mails(db: AsyncIOMotorDatabase, exam_center_id: int, license_type: str) -> list[str]:
+    cursor: AsyncIOMotorCursor = db["subscribers"].find(
+        {"monitoring_preferences.exam_center_ids": exam_center_id, "monitoring_preferences.license_types": license_type}, {"email": 1}
+    )
     return [subscriber["email"] async for subscriber in cursor]
 
 

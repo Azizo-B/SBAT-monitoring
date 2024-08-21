@@ -255,8 +255,8 @@ class SbatMonitor:
 
         if message:
             subject: str = f"New driving exam time slots available for license type '{license_type}' at exam center '{exam_center_name}':"
-            message: str = subject + "\n\n" + message
-            recipients: list[str] = await get_all_subscribed_mails(self.db)
+            message: str = subject + "\nLink: https://rijbewijs.sbat.be/praktijk/examen/Login \n" + message
+            recipients: list[str] = await get_all_subscribed_mails(self.db, exam_center_id, license_type)
             send_email(
                 subject,
                 recipients,

@@ -11,11 +11,11 @@ async def send_telegram_message(message: str, bot_token: str, chat_id: str) -> N
     url: str = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     payload: dict[str, str] = {"chat_id": chat_id, "text": message}
     async with httpx.AsyncClient() as client:
-        response: httpx.Response = client.post(url, data=payload, timeout=10)
+        response: httpx.Response = await client.post(url, data=payload, timeout=10)
     print(f"Message sent to telegram chat: {chat_id} \nResponse: {response.status_code}")
 
 
-def get_channel_id(bot_token: str):
+def get_channel_id(bot_token: str) -> None:
     response: httpx.Response = httpx.get(f"https://api.telegram.org/bot{bot_token}/getUpdates")
     if response.status_code == 200:
         data: dict = response.json()
@@ -63,13 +63,14 @@ def send_email(
     message: str | None = None,
     html_template: str | None = None,
     **kwargs,
-):
+) -> None:
     """Send an email to the provided recipients."""
     if not recipient_list:
         print("No recipients provided")
         return
     msg = EmailMessage()
     msg["From"] = sender
+    msg["To"] = ", ".join(recipient_list)
     msg["Subject"] = subject
     msg["Date"] = formatdate(localtime=True)
 
@@ -88,9 +89,7 @@ def send_email(
             server.starttls()
             server.ehlo()
             server.login(sender, password)
-            for recipient in recipient_list:
-                msg["To"] = recipient
-                server.send_message(msg)
-                print(f"Email sent to {recipient}")
+            server.send_message(msg)
+            print(f"Email sent to {len(recipient_list)} recipients")
     except Exception as e:  # pylint: disable=broad-except
         print(f"Failed to send email: {e}")
