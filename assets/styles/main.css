@@ -78,6 +78,7 @@ main {
 
 .banner-text {
   text-align: center;
+  padding-top: 20px;
   box-sizing: border-box;
 }
 
