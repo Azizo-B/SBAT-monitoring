@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     if (subscriptionStatus === "Actief") {
       disableButton.style.display = "inline-block";
+      document.getElementById("activate-subscription").disabled = true
     }
 
     document
@@ -109,13 +110,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     document.getElementById("sign-out").addEventListener("click", function () {
       localStorage.removeItem("authToken");
-      localStorage.setItem("authToken", data.access_token);
       window.location.href = `/`;
     });
-
-
-
-
 
     disableButton.addEventListener("click", async function () {
       window.location.href = "https://billing.stripe.com/p/login/test_6oE3dU00g5nn5mU8ww"
