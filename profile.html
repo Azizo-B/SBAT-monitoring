@@ -20,12 +20,13 @@
     />
     <meta
       property="og:image"
-      content="https://rijexamenmeldingen.be/assets/logo.jpg"
+      content="https://rijexamenmeldingen.be/assets/logo.png"
     />
     <meta property="og:url" content="https://rijexamenmeldingen.be" />
     <meta property="og:type" content="website" />
     <link rel="icon" href="/assets/logo.svg" type="image/svg+xml" />
-    <link rel="icon" href="/assets/logo.jpg" />
+    <link rel="icon" href="/assets/logo.png" />
+    <link rel="icon" href="/assets/logo.jpeg" />
     <link rel="stylesheet" href="/assets/styles/profile.css" />
     <link rel="stylesheet" href="/assets/styles/scrollbar.css" />
 
@@ -34,10 +35,14 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
     <style>
-      .back-arrow {
+      .top-buttons {
+        width: 100%;
+        display: flex;
         position: fixed;
         top: 20px;
-        left: 20px;
+        justify-content: space-between;
+      }
+      .back-arrow {
         font-size: 20px;
         color: white;
         text-decoration: none;
@@ -55,11 +60,18 @@
 
       .back-arrow i {
         margin-right: 8px;
+        margin-left: 8px;
       }
     </style>
   </head>
   <body>
-    <a href="/" class="back-arrow"><i class="fas fa-arrow-left"></i> Terug</a>
+    <div class="top-buttons">
+      <a href="/" class="back-arrow"><i class="fas fa-arrow-left"></i> Terug</a>
+      <a id="sign-out" class="back-arrow"
+        >Afmelden <i class="fa fa-sign-out"></i
+      ></a>
+    </div>
+
     <div class="profile-container">
       <h2>Profiel</h2>
       <div class="profile-info">
@@ -75,7 +87,19 @@
         </p>
         <p>
           <span>Abonnementsstatus:</span>
-          <span id="subscription-status">Niet Actief</span>
+          <span id="subscription-status">Actief</span>
+          <a
+            id="disable-subscription"
+            style="
+              display: none;
+              cursor: pointer;
+              font-size: 0.9em;
+              color: #007bff;
+              text-decoration: underline;
+              margin-left: 10px;
+            "
+            >Annuleren</a
+          >
         </p>
       </div>
       <div class="preferences">
@@ -86,45 +110,38 @@
         <p><span>Rijbewijzen:</span></p>
         <div class="checkbox-container">
           <label
-            ><input type="checkbox" name="license_types" value="B" disabled />
-            B</label
+            ><input type="checkbox" name="license_types" value="B" /> B</label
           >
           <label
-            ><input type="checkbox" name="license_types" value="AM" disabled />
-            AM</label
+            ><input type="checkbox" name="license_types" value="AM" /> AM</label
           >
         </div>
         <p><span>Examencentra:</span></p>
         <div class="checkbox-container">
           <label
-            ><input type="checkbox" name="exam_center_ids" value="1" disabled />
+            ><input type="checkbox" name="exam_center_ids" value="1" />
             Sint-Denijs-Westrem</label
           >
           <label
-            ><input type="checkbox" name="exam_center_ids" value="7" disabled />
+            ><input type="checkbox" name="exam_center_ids" value="7" />
             Brakel</label
           >
           <label
-            ><input type="checkbox" name="exam_center_ids" value="8" disabled />
+            ><input type="checkbox" name="exam_center_ids" value="8" />
             Eeklo</label
           >
           <label
-            ><input type="checkbox" name="exam_center_ids" value="9" disabled />
+            ><input type="checkbox" name="exam_center_ids" value="9" />
             Erembodegem</label
           >
           <label
-            ><input
-              type="checkbox"
-              name="exam_center_ids"
-              value="10"
-              disabled
-            />
+            ><input type="checkbox" name="exam_center_ids" value="10" />
             Sint-Niklaas</label
           >
         </div>
       </div>
       <div class="button-group">
-        <button id="submit-preferences" disabled>Voorkeuren Opslaan</button>
+        <button id="submit-preferences">Voorkeuren Opslaan</button>
         <button id="activate-subscription">Activeer Abonnement (€1)</button>
       </div>
     </div>
