@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   try {
     const response = await fetch(
-      "https://api.rijexamenmeldingen.be/auth/user/me",
+      "https://api.rijexamenmeldingen.be/subscribers/me",
       {
         method: "GET",
         headers: {
@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         try {
           const saveResponse = await fetch(
-            "https://api.rijexamenmeldingen.be/auth/user/preferences",
+            "https://api.rijexamenmeldingen.be/subscribers/me/preferences",
             {
               method: "POST",
               headers: {
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document
       .getElementById("activate-subscription")
       .addEventListener("click", function () {
-        window.location.href = `https://buy.stripe.com/test_fZe9Cgb193Nmenm3cd?client_reference_id=${subscriber_id}`;
+        window.location.href = `https://buy.stripe.com/28oeWs5Jmd9o3Cg7ss?client_reference_id=${subscriber_id}`;
       });
 
     document.getElementById("sign-out").addEventListener("click", function () {
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 
     disableButton.addEventListener("click", async function () {
-      window.location.href = "https://billing.stripe.com/p/login/test_6oE3dU00g5nn5mU8ww"
+      window.location.href = "https://billing.stripe.com/p/login/9AQ5kV1gD4WP3XW288"
     });
 
   } catch (error) {
