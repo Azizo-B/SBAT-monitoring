@@ -16,8 +16,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 async def authenticate_user(username: str, password: str, db: AsyncIOMotorDatabase) -> SubscriberRead | None:
-
-    subscriber: dict | None = await db["subscribers"].find_one({"email": username})
+    subscriber: dict | None = await db["subscribers"].find_one({"email": username.lower()})
 
     if not subscriber:
         return
@@ -35,8 +34,9 @@ def create_access_token(data: dict, settings: Settings) -> str:
     return jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
 
-@auth.post("/subscribe")
+@auth.post("/signup")
 async def subscribe(subscriber: SubscriberCreate, db: AsyncIOMotorDatabase = Depends(get_db)) -> dict[str, str]:
+    subscriber.email = subscriber.email.lower()
     existing_subscriber: dict | None = await db["subscribers"].find_one({"email": subscriber.email})
     if existing_subscriber:
         raise HTTPException(status_code=400, detail="Email already subscribed")

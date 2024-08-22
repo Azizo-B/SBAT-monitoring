@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bevestiging van je registratie</title>
+    <title>Betaling Mislukt - Tijdelijk Abonnement Stopgezet</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -23,7 +23,7 @@
       }
 
       h1 {
-        color: #007bff;
+        color: #ff4d4d;
       }
       a {
         color: #007bff;
@@ -38,34 +38,38 @@
   </head>
   <body>
     <div class="container">
-      <h1>Bevestiging van je registratie</h1>
+      <h1>Betaling Mislukt - Tijdelijk Abonnement Stopgezet</h1>
       <p>Beste <strong>{{naam}}</strong>,</p>
       <p>
-        Bedankt voor je registratie! We hebben je Telegram-gebruikersnaam en
-        voorkeuren ontvangen. Je kunt nu beginnen met het ontvangen van
-        meldingen en updates over je geselecteerde examencentra en
-        rijbewijstypes.
+        We willen je informeren dat je recente betaling mislukt is. Als gevolg
+        hiervan is je abonnement tijdelijk stopgezet. Om te voorkomen dat je
+        permanent uit de Telegram-groep wordt verwijderd en je toegang verliest
+        tot meldingen en updates, verzoeken we je vriendelijk om de betaling zo
+        snel mogelijk in orde te brengen.
       </p>
 
       <p><strong>Wat je nu kunt doen:</strong></p>
       <ul>
         <li>
-          <strong>Telegram</strong>: Je kunt onze Telegramgroep joinen via de
-          volgende link: <a href="{{telegram_link}}" target="_blank">[link]</a>.
-          Let op, deze link is slechts één keer te gebruiken, klik erop om
-          toegang te krijgen.
+          <strong>Controleer je betalingsgegevens</strong>: Zorg ervoor dat je
+          betalingsgegevens up-to-date zijn en dat er voldoende saldo
+          beschikbaar is.
         </li>
         <li>
-          <strong>Voorkeuren aanpassen</strong>: Wil je je voorkeuren voor
-          examencentra of rijbewijstypes later aanpassen? Geen probleem! Je kunt
-          dit gemakkelijk doen op de
-          <a href="https://rijexamenmeldingen.be/profile">profielpagina</a>.
+          <strong>Betaling opnieuw proberen</strong>: Bezoek de
+          <a
+            href="https://billing.stripe.com/p/login/test_6oE3dU00g5nn5mU8ww"
+            target="_blank"
+            >betalingspagina</a
+          >
+          om de betaling opnieuw uit te voeren.
         </li>
       </ul>
 
       <p>
-        We wensen je veel succes met je aanmelding en staan klaar om je te
-        helpen als je nog vragen hebt.
+        Als de betaling niet binnen enkele dagen wordt verwerkt, zal je
+        abonnement definitief worden geannuleerd en zul je uit de Telegram-groep
+        worden verwijderd.
       </p>
 
       <div class="footer">
@@ -76,7 +80,7 @@
           >rijexamenmeldingen@gmail.com</a
         ><br />
         Website:
-        <a href="rijexamenmeldingen.be" target="_blank"
+        <a href="https://rijexamenmeldingen.be" target="_blank"
           >rijexamenmeldingen.be</a
         >
       </div>

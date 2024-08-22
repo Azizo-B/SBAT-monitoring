@@ -1,4 +1,3 @@
-import httpx
 import stripe
 from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -7,8 +6,8 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from api import database
 
 from .dependencies import Settings, get_db, get_settings
-from .models import EXAM_CENTER_MAP, MonitorPreferences, SubscriberCreate, SubscriberRead
-from .utils import send_email
+from .models import SubscriberCreate, SubscriberRead
+from .utils import create_single_use_invite_link, send_email
 
 webhooks = APIRouter()
 
@@ -33,13 +32,84 @@ async def stripe_webhook(
     if event["type"] == "checkout.session.completed":
         session: dict = event["data"]["object"]
         await handle_payment_link_session(db, settings, session)
+    elif event["type"] == "invoice.payment_succeeded":
+        invoice: dict = event["data"]["object"]
+        await handle_invoice_payment_succeeded(db, invoice)
+    elif event["type"] == "invoice.payment_failed":
+        invoice: dict = event["data"]["object"]
+        await handle_invoice_payment_failed(db, settings, invoice)
+    elif event["type"] == "customer.subscription.deleted":
+        subscription: dict = event["data"]["object"]
+        await deactivate_subscription(db, settings, subscription)
 
     return {"status": "success"}
 
 
-async def handle_payment_link_session(db: AsyncIOMotorDatabase, settings: Settings, session: dict):
-    user: SubscriberRead = await add_new_customer_from_session(db, session)
-    telegram_link: str | None = await create_single_use_invite_link(settings.telegram_chat_id, settings.telegram_bot_token, user.name)
+async def handle_invoice_payment_failed(db: AsyncIOMotorDatabase, settings: Settings, invoice: dict) -> None:
+    stripe_customer_id: str = invoice.get("customer")
+    user: dict | None = await db["subscribers"].find_one({"stripe_customer_id": stripe_customer_id})
+    if not user:
+        print(f"No user found with Stripe customer ID: {stripe_customer_id}")
+        return
+
+    await db["subscribers"].update_one(
+        {"_id": user["_id"]},
+        {"$set": {"is_subscription_active": False}},
+    )
+    send_email(
+        "Betalingsfout - Actie Vereist",
+        [user["email"]],
+        settings.sender_email,
+        settings.sender_password,
+        settings.smtp_server,
+        settings.smtp_port,
+        is_html=True,
+        html_template="payment_failed_email.html",
+        naam=user["name"],
+    )
+    print(f"Payment failed for user: {user['email']}")
+
+
+async def handle_invoice_payment_succeeded(db: AsyncIOMotorDatabase, invoice: dict) -> None:
+    stripe_customer_id: str = invoice.get("customer")
+    amount_paid: int = invoice.get("amount_paid")
+    user: dict | None = await db["subscribers"].find_one({"stripe_customer_id": stripe_customer_id})
+    if not user:
+        print(f"No user found with Stripe customer ID: {stripe_customer_id}")
+        return
+
+    await db["subscribers"].update_one(
+        {"_id": user["_id"]},
+        {
+            "$set": {
+                "is_subscription_active": True,
+                "total_spent": user.get("total_spent", 0) + amount_paid,
+            }
+        },
+    )
+    print(f"Payment succeeded for user: {user['email']}, amount: {amount_paid}")
+
+
+async def deactivate_subscription(db: AsyncIOMotorDatabase, settings: Settings, subscription: dict) -> None:
+    stripe_customer_id: str = subscription.get("customer")
+    await db["subscribers"].update_one({"stripe_customer_id": stripe_customer_id}, {"$set": {"is_subscription_active": False}})
+    user: dict | None = await db["subscribers"].find_one({"stripe_customer_id": stripe_customer_id})
+    send_email(
+        "Bevestiging van Annulering van je Abonnement.",
+        [user["email"]],
+        settings.sender_email,
+        settings.sender_password,
+        settings.smtp_server,
+        settings.smtp_port,
+        is_html=True,
+        html_template="cancellation_email.html",
+        naam=user["name"],
+    )
+
+
+async def handle_payment_link_session(db: AsyncIOMotorDatabase, settings: Settings, session: dict) -> None:
+    telegram_link: str | None = await create_single_use_invite_link(settings.telegram_chat_id, settings.telegram_bot_token)
+    user: SubscriberRead = await add_new_customer_from_session(db, session, telegram_link)
     send_email(
         "Betaling geslaagd! Uw voorkeuren zijn ontvangen.",
         [user.email],
@@ -54,79 +124,50 @@ async def handle_payment_link_session(db: AsyncIOMotorDatabase, settings: Settin
     )
 
 
-async def create_single_use_invite_link(chat_id: str, bot_token: str, name: str = None) -> str | None:
-    """Create a single-use invite link for a Telegram chat."""
-    url: str = f"https://api.telegram.org/bot{bot_token}/createChatInviteLink"
-    payload: dict = {
-        "chat_id": chat_id,
-        "name": name,
-        "member_limit": 1,
-        "creates_join_request": False,
-    }
-    async with httpx.AsyncClient() as client:
-        response: httpx.Response = await client.post(url, json=payload)
-        if response.status_code == 200:
-            data: dict = response.json()
-            return data["result"]["invite_link"]
-        else:
-            print(f"Failed to create invite link. Response: {response.text}")
-            return None
-
-
-async def add_new_customer_from_session(db: AsyncIOMotorDatabase, session: dict) -> SubscriberRead:
-    session_id: str = session.get("id")
+async def add_new_customer_from_session(db: AsyncIOMotorDatabase, session: dict, telegram_link: str) -> SubscriberRead:
+    sub_id: str = session.get("subscription")
     amount_total: int = session.get("amount_total")
     client_reference_id: str = session.get("client_reference_id")
-    print("REFERENCE IDDDDDDDDD", client_reference_id)
+    stripe_customer_id: str = session.get("customer")
 
     customer_details: dict = session.get("customer_details", {})
     name: str = customer_details.pop("name")
     email: str = customer_details.pop("email")
     phone: str = customer_details.pop("phone")
 
-    custom_fields: list = session.get("custom_fields", [])
-    field_dict: dict = {field["key"]: field for field in custom_fields}
-
-    examencentra: str = field_dict.get("examencentralateraantepassentoetevoegen", {}).get("dropdown", {}).get("value", "")
-    license_types: list[str] = [field_dict.get("rijbewijslateraantepassentoetevoegen", {}).get("dropdown", {}).get("value", "").upper()]
-    telegram_username: str = field_dict.get("telegramusername", {}).get("text", {}).get("value", "")
-
-    exam_center_ids: list[int] = [k for k, v in EXAM_CENTER_MAP.items() if v == examencentra]
-
-    mp = MonitorPreferences(license_types=license_types, exam_center_ids=exam_center_ids)
-
     existing_user: dict | None = await db["subscribers"].find_one({"_id": ObjectId(client_reference_id)})
     if existing_user:
         valid: SubscriberRead = SubscriberRead.model_validate(existing_user)
-        valid.total_spent = valid.total_spent + amount_total
-        valid.stripe_ids.append(session_id)
-        valid.name = name
+        if sub_id not in valid.stripe_ids:
+            valid.stripe_ids.append(sub_id)
+
         await db["subscribers"].update_one(
             {"_id": existing_user.get("_id")},
             {
                 "$set": {
-                    "total_spent": valid.total_spent,
                     "stripe_ids": valid.stripe_ids,
                     "phone": phone,
                     "name": name,
-                    "telegram_username": telegram_username,
                     "extra_details": customer_details,
-                    "monitoring_preferences": {**mp.model_dump()},
+                    "stripe_customer_id": stripe_customer_id,
+                    "is_subscription_active": True,
+                    "telegram_link": valid.telegram_link if valid.telegram_link else telegram_link,
                 }
             },
         )
         return valid
 
     valid = SubscriberCreate(
-        stripe_ids=[session_id],
+        stripe_ids=[sub_id],
+        stripe_customer_id=stripe_customer_id,
+        is_subscription_active=True,
+        telegram_link=telegram_link,
         name=name,
-        telegram_username=telegram_username,
         email=email,
         phone=phone,
         total_spent=amount_total,
         extra_details=customer_details,
-        monitoring_preferences=mp,
         password="",
     )
-    result: database.InsertOneResult = await db["subscribers"].insert_one(valid.model_dump())
-    return SubscriberRead(_id=result.inserted_id, **valid.model_dump())
+    result: database.InsertOneResult = await db["subscribers"].insert_one({**valid.model_dump(exclude="password"), "hashed_password": ""})
+    return SubscriberRead(_id=result.inserted_id, hashed_password="", **valid.model_dump())

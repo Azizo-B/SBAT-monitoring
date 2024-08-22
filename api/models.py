@@ -41,13 +41,16 @@ class MonitorConfiguration(MonitorPreferences):
 class SubscriberBase(BaseModel):
     name: str
     email: EmailStr
+    stripe_customer_id: str | None = None
     stripe_ids: list[str] = []
     phone: str | None = None
-    telegram_username: str | None = None
+    telegram_link: str | None = None
     extra_details: dict = {}
     total_spent: int = 0
     role: str = "user"
+    is_subscription_active: bool = False
     monitoring_preferences: MonitorPreferences = MonitorPreferences()
+    account_created_on: datetime = datetime.now(UTC)
 
 
 class SubscriberCreate(SubscriberBase):

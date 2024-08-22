@@ -1,3 +1,4 @@
+import asyncio
 import smtplib
 from email.message import EmailMessage
 from email.utils import formatdate
@@ -24,6 +25,31 @@ def get_channel_id(bot_token: str) -> None:
             print(result)
     else:
         print(f"Failed to get updates. Response: {response.text}")
+
+
+async def create_single_use_invite_link(chat_id: str, bot_token: str, max_retries: int = 3) -> str | None:
+    """Create a single-use invite link for a Telegram chat."""
+    url: str = f"https://api.telegram.org/bot{bot_token}/createChatInviteLink"
+    payload: dict = {
+        "chat_id": chat_id,
+        "member_limit": 1,
+        "creates_join_request": False,
+    }
+    for attempt in range(1, max_retries + 1):
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response: httpx.Response = await client.post(url, json=payload)
+                if response.status_code == 200:
+                    data: dict = response.json()
+                    return data["result"]["invite_link"]
+                else:
+                    print(f"Attempt {attempt}: Failed to create invite link. Response: {response.text}")
+        except httpx.RequestError as exc:
+            print(f"Attempt {attempt}: An error occurred while requesting {exc.request.url!r}. Error: {exc}")
+
+        # Exponential backoff with jitter
+        wait_time = 2**attempt + (0.1 * attempt)
+        await asyncio.sleep(wait_time)
 
 
 def download_file_from_gcs(bucket_name: str, blob_name: str, destination_filename: str) -> None:
