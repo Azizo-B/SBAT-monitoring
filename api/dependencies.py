@@ -55,7 +55,7 @@ def get_sbat_monitor():
     db: AsyncIOMotorDatabase = client["rijexamen-meldingen"]
 
     from .models import MonitorConfiguration  # pylint: disable=import-outside-toplevel
-    from .sbat_monitor import SbatMonitor  # pylint: disable=import-outside-toplevel
+    from .services.sbat_monitor import SbatMonitor  # pylint: disable=import-outside-toplevel
 
     return SbatMonitor(db=db, settings=settings, config=MonitorConfiguration())
 

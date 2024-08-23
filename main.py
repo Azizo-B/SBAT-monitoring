@@ -5,9 +5,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.dependencies import client
-from api.jwt_auth import auth
-from api.routes import router
-from api.webhooks import webhooks
+from api.routes.jwt_auth import auth
+from api.routes.sbat import router as sbat_router
+from api.routes.subscribers import router as subscribers_router
+from api.webhooks.webhooks import webhooks
 
 
 @asynccontextmanager
@@ -31,7 +32,8 @@ app.add_middleware(
 
 
 app.include_router(auth)
-app.include_router(router)
+app.include_router(sbat_router)
+app.include_router(subscribers_router)
 app.include_router(webhooks)
 
 

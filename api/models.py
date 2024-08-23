@@ -45,6 +45,7 @@ class SubscriberBase(BaseModel):
     stripe_ids: list[str] = []
     phone: str | None = None
     telegram_link: str | None = None
+    telegram_user: dict = {}
     extra_details: dict = {}
     total_spent: int = 0
     role: str = "user"

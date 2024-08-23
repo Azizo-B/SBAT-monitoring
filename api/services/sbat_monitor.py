@@ -7,19 +7,10 @@ import httpx
 import jwt
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from .database import (
-    add_sbat_request,
-    add_time_slot,
-    get_all_subscribed_mails,
-    get_last_sbat_auth_request,
-    get_notified_time_slots,
-    get_time_slot_status,
-    set_first_taken_at,
-    set_time_slot_status,
-)
-from .dependencies import Settings
-from .models import EXAM_CENTER_MAP, MonitorConfiguration, MonitorStatus, SbatRequestRead
-from .utils import send_email, send_telegram_message
+from ..db import mongoDB
+from ..dependencies import Settings
+from ..models import EXAM_CENTER_MAP, MonitorConfiguration, MonitorStatus, SbatRequestRead
+from ..utils import send_email, send_telegram_message, send_telegram_message_to_all
 
 
 class SbatMonitor:
@@ -120,7 +111,7 @@ class SbatMonitor:
         )
 
     async def authenticate(self) -> str:
-        last_request: SbatRequestRead | None = await get_last_sbat_auth_request(self.db)
+        last_request: SbatRequestRead | None = await mongoDB.get_last_sbat_auth_request(self.db)
         if last_request:
             try:
                 payload: dict = jwt.decode(last_request.response_body.get("token"), options={"verify_signature": False})
@@ -137,7 +128,7 @@ class SbatMonitor:
                 timeout=60,
             )
 
-        await add_sbat_request(
+        await mongoDB.add_sbat_request(
             db=self.db,
             email_used=self.settings.sbat_username,
             request_type="authentication",
@@ -192,7 +183,7 @@ class SbatMonitor:
                 timeout=60,
             )
 
-        await add_sbat_request(
+        await mongoDB.add_sbat_request(
             db=self.db,
             email_used=self.settings.sbat_username,
             request_type="check_for_time_slots",
@@ -233,7 +224,7 @@ class SbatMonitor:
         self, time_slots: list[dict], exam_center_id: int, exam_center_name: str, license_type: str
     ) -> None:
         current_time_slots = set()
-        notified_time_slots: set[int] = await get_notified_time_slots(self.db, exam_center_id, license_type)
+        notified_time_slots: set[int] = await mongoDB.get_notified_time_slots(self.db, exam_center_id, license_type)
         message: str = ""
 
         for time_slot in time_slots:
@@ -248,26 +239,27 @@ class SbatMonitor:
                 if new_time_slot_messag not in message:
                     message += new_time_slot_messag
 
-                if await get_time_slot_status(self.db, exam_id) == "taken":
-                    await set_time_slot_status(self.db, exam_id, "notified")
+                if await mongoDB.get_time_slot_status(self.db, exam_id) == "taken":
+                    await mongoDB.set_time_slot_status(self.db, exam_id, "notified")
                 else:
-                    await add_time_slot(self.db, time_slot, status="notified")
+                    await mongoDB.add_time_slot(self.db, time_slot, status="notified")
 
         if message:
             subject: str = f"New driving exam time slots available for license type '{license_type}' at exam center '{exam_center_name}':"
             message: str = subject + "\nLink: https://rijbewijs.sbat.be/praktijk/examen/Login \n" + message
-            recipients: list[str] = await get_all_subscribed_mails(self.db, exam_center_id, license_type)
+            email_recipients: list[str] = await mongoDB.get_all_subscribed_mails(self.db, exam_center_id, license_type)
+            telegram_recipients: list[str] = await mongoDB.get_all_telegram_user_ids(self.db, exam_center_id, license_type)
             send_email(
                 subject,
-                recipients,
+                email_recipients,
                 self.settings.sender_email,
                 self.settings.sender_password,
                 self.settings.smtp_server,
                 self.settings.smtp_port,
                 message=message,
             )
-            await send_telegram_message(message, self.settings.telegram_bot_token, self.settings.telegram_chat_id)
+            await send_telegram_message_to_all(message, self.settings.telegram_bot_token, telegram_recipients)
 
         for exam_id in notified_time_slots - current_time_slots:
-            await set_time_slot_status(self.db, exam_id, "taken")
-            await set_first_taken_at(self.db, exam_id)
+            await mongoDB.set_time_slot_status(self.db, exam_id, "taken")
+            await mongoDB.set_first_taken_at(self.db, exam_id)
