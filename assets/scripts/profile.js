@@ -38,6 +38,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       data.email || "Onbekend";
     document.getElementById("user-phone").textContent =
       data.phone || "Niet opgegeven";
+    document.getElementById("user-telegram").textContent =
+      `${data.telegram_user.first_name || "Onbekend"} ${data.telegram_user.last_name || ""}`;
     const subscriptionStatus =
       data.is_subscription_active ? "Actief" : "Niet Actief";
     document.getElementById("subscription-status").textContent =
