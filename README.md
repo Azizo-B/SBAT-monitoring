@@ -6,6 +6,8 @@ The **SBAT Monitoring System** is a Python API designed to monitor and notify us
 
 [Watch the Demo Video](https://storage.googleapis.com/random-data-bucket/SBAT-monitoring.mp4)
 
+**Note**: The demo video may be based on an earlier version of the system and could be outdated. For the most up-to-date information, please refer to the documentation or check the API itself.
+
 ## Table of Contents
 
 - [Design Choices](#design-choices)
@@ -28,6 +30,22 @@ The **SBAT Monitoring System** is a Python API designed to monitor and notify us
 
   So, instead of pushing the limits, I stuck to a more straightforward approach that stays within the guidelines and keeps things fair for everyone.
 
+- ### Cost-Effective and Efficient Hosting
+
+  The API is hosted on a Google Cloud E2 micro instance, which falls under Google's free tier. This allows the API to run 24/7 without incurring costs, making it a highly cost-effective solution. The instance is configured with HTTPS, ensuring secure communication between clients and the server.
+
+  The database used is MongoDB, which is also hosted under a free tier plan. This setup allows for efficient storage and retrieval of user data, monitoring logs, and other relevant information without additional costs.
+
+  The frontend is hosted using GitHub Pages, which is also free, providing a simple and efficient way to manage and deploy the user interface.
+
+- ### Payment Processing with Stripe
+
+  Payments for subscriptions and other services are handled using Stripe, a reliable and secure payment processor. This integration allows for smooth handling of transactions, with all payment events being tracked and managed via Stripe webhooks.
+
+- ### Telegram Bot and Webhooks
+
+  The Telegram bot, used for sending notifications, is integrated into the system via webhooks. This ensures that messages are sent and received in real-time, providing users with timely updates on available driving exam slots. Webhooks are also used to handle events from Stripe, ensuring that subscription statuses and payment events are processed immediately.
+
 - ### Singleton Pattern for SbatMonitor
 
   The `SbatMonitor` class is designed as a singleton. This design choice ensures that only one instance of the monitor is created and shared across the application. This pattern prevents multiple instances from running concurrently, which could lead to conflicting operations. It also simplifies the management and tracking of the monitoring task's state, providing a consistent and controlled environment.
@@ -36,10 +54,6 @@ The **SBAT Monitoring System** is a Python API designed to monitor and notify us
 
   The application uses a `BaseSettings` class for configuration management. This class centralizes the configuration settings, such as SBAT API credentials and notification preferences, in one place. By using `BaseSettings`, the configuration can be easily managed and updated without altering the core application logic. This design choice enhances maintainability and flexibility, making it easier to adapt to changes in configuration requirements.
 
-- ### Persistent Database Session
-
-  The `SbatMonitor` class maintains a persistent database session to ensure that database operations are efficient and reliable. Keeping a persistent session open reduces the overhead of repeatedly opening and closing connections, which can be costly in terms of performance. This approach is particularly useful for applications that need to perform frequent database operations, as it helps to minimize latency and maintain a consistent connection state.
-
 ## Getting Started
 
 This section explains how to set up the SBAT Monitoring System on your local machine.
@@ -47,7 +61,6 @@ This section explains how to set up the SBAT Monitoring System on your local mac
 **Prerequisites:**
 
 - A SBAT account is required
-- A Google Cloud Platform account (optional, for database storage)
 
 **Steps:**
 
@@ -102,17 +115,7 @@ This section explains how to set up the SBAT Monitoring System on your local mac
    SENDER_PASSWORD=email_password
    SMTP_SERVER=smtp.gmail.com # Example for Gmail - adjust if needed
    SMTP_PORT=587 # Typical port for secure email
-
-   # Google Cloud Storage Settings (Optional, for database storage)
-   GOOGLE_APPLICATION_CREDENTIALS=path/to/your/google_application_credentials.json
-   DATABASE_FILE=path/to/your/local/database.db
-   BUCKET_NAME=your_gcs_bucket_name
-   BLOB_NAME=your_desired_gcs_filename.db
    ```
-
-   **Note:**
-
-   - If you don't plan on using Google Cloud Storage for database persistence, you can comment out or remove the `GOOGLE_APPLICATION_CREDENTIALS`, `DATABASE_FILE`, `BUCKET_NAME` and `BLOB_NAME` variables. The system will automatically exclude operations related to Google Cloud Storage.
 
 5. **Run the Application:**
 
@@ -126,6 +129,8 @@ This section explains how to set up the SBAT Monitoring System on your local mac
    http://127.0.0.1:8000/docs
 
 ## API Endpoints
+
+### NOTE: Always check the API itself for the most up-to-date endpoints.
 
 ### Monitoring Endpoints
 

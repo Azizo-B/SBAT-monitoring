@@ -17,7 +17,7 @@ class MonitorStatus(BaseModel):
     first_started_at: datetime | None = None
     last_started_at: datetime | None = None
     last_stopped_at: datetime | None = None
-    task_exception: str | None = None
+    stopped_due_to: str | None = None
 
 
 EXAM_CENTER_MAP: dict[int, str] = {1: "sintdenijswestrem", 7: "brakel", 8: "eeklo", 9: "erembodegem", 10: "sintniklaas"}
@@ -67,10 +67,9 @@ class SbatRequestBase(BaseModel):
     timestamp: datetime
     request_type: str
     request_body: dict | None = None
-    response: int | None = None
+    response: dict | None = None
     url: str
     email_used: str
-    response_body: dict | None = None
 
 
 class SbatRequestCreate(SbatRequestBase):

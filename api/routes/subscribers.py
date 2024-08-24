@@ -10,8 +10,10 @@ router = APIRouter(prefix="/subscribers", tags=["Subscribers"])
 
 
 @router.get("/")
-async def get_subscribers(db: AsyncIOMotorDatabase = Depends(get_db), _: SubscriberRead = Depends(get_admin_user)) -> list[SubscriberRead]:
-    return await mongoDB.get_subscribers(db)
+async def get_subscribers(
+    limit: int = 10, db: AsyncIOMotorDatabase = Depends(get_db), _: SubscriberRead = Depends(get_admin_user)
+) -> list[SubscriberRead]:
+    return await mongoDB.get_subscribers(db, limit)
 
 
 @router.get("/me")

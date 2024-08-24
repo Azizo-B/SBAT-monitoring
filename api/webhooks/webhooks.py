@@ -10,7 +10,7 @@ from .stripe_handlers import (
     handle_invoice_payment_succeeded,
     handle_subscription_deleted,
 )
-from .telegram_handlers import handle_chat_join_request, handle_start
+from .telegram_handlers import handle_chat_join_request, handle_start, handle_voorkeuren
 
 webhooks = APIRouter(tags=["Webhooks"])
 
@@ -60,22 +60,13 @@ async def telegram_webhook(
     if "chat_join_request" in update:
         await handle_chat_join_request(db, settings, update)
 
-    if "message" in update:
-        message: dict = update["message"]
-        if message.get("text").lower().strip() in ("/start", "/start@sbatmonitoringbot"):
-            response_message: str = (
-                f"Hallo {message['from'].get('first_name', 'gebruiker')}, "
-                "stuur een /start bericht naar @SbatMonitoringBot in een privégesprek om privé meldingen te ontvangen."
-            )
-            if message.get("chat").get("type") == "private":
-                response_message: str = await handle_start(db, message.get("from"))
-            await send_telegram_message(response_message, settings.telegram_bot_token, message.get("chat").get("id"))
-        if message.get("text").lower().strip() in ("/voorkeuren", "/voorkeuren@sbatmonitoringbot"):
-            response_message: str = (
-                f"Hallo {message['from'].get('first_name', 'gebruiker')}, "
-                "dit lukt momenteel nog niet via onze telegram bot (@SbatMonitoringBot).\n"
-                "Bezoek https://rijexamenmeldingen.be/profile om je voorkeuren aan te passen."
-            )
-            await send_telegram_message(response_message, settings.telegram_bot_token, message.get("chat").get("id"))
+    if message := update.get("message"):
+        input_text: str = message.get("text", "").lower().strip()
+        if input_text in ("/start", "/start@sbatmonitoringbot"):
+            response: str = await handle_start(db, message)
+            await send_telegram_message(response, settings.telegram_bot_token, message.get("chat").get("id"))
+        if input_text in ("/voorkeuren", "/voorkeuren@sbatmonitoringbot"):
+            response: str = await handle_voorkeuren(message)
+            await send_telegram_message(response, settings.telegram_bot_token, message.get("chat").get("id"))
 
     return {"status": "ok"}

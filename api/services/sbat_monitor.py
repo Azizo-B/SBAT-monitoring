@@ -10,7 +10,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from ..db import mongoDB
 from ..dependencies import Settings
 from ..models import EXAM_CENTER_MAP, MonitorConfiguration, MonitorStatus, SbatRequestRead
-from ..utils import send_email, send_telegram_message, send_telegram_message_to_all
+from ..utils import send_email, send_telegram_message_to_all
 
 
 class SbatMonitor:
@@ -42,6 +42,7 @@ class SbatMonitor:
         self.first_started_at: datetime | None = None
         self.last_started_at: datetime | None = None
         self.last_stopped_at: datetime | None = None
+        self.stopped_due_to: str | None = None
 
     @property
     def config(self) -> MonitorConfiguration:
@@ -76,13 +77,13 @@ class SbatMonitor:
 
     def clean_up(self, task: asyncio.Task) -> None:
         if task.cancelled():
-            print("SBAT MONITOR STOPPED: Task was cancelled.")
+            self.stopped_due_to = "SBAT MONITOR STOPPED: Task was cancelled."
         elif task.done():
             exception: BaseException | None = task.exception()
             if exception:
-                print("SBAT MONITOR STOPPED: Exception occurred:", exception)
+                self.stopped_due_to = f"SBAT MONITOR STOPPED: Exception occurred: {exception}"
             else:
-                print("SBAT MONITOR STOPPED: Task completed successfully.")
+                self.stopped_due_to = "SBAT MONITOR STOPPED: Task completed successfully."
 
         self.last_stopped_at = datetime.now()
         if self.last_started_at:
@@ -107,16 +108,16 @@ class SbatMonitor:
             first_started_at=self.first_started_at,
             last_started_at=self.last_started_at,
             last_stopped_at=self.last_stopped_at,
-            task_exception=str(self.task.exception()) if self.task and self.task.done() and self.task.exception() else None,
+            stopped_due_to=self.stopped_due_to,
         )
 
     async def authenticate(self) -> str:
         last_request: SbatRequestRead | None = await mongoDB.get_last_sbat_auth_request(self.db)
         if last_request:
             try:
-                payload: dict = jwt.decode(last_request.response_body.get("token"), options={"verify_signature": False})
+                payload: dict = jwt.decode(last_request.response_body.get("response_text"), options={"verify_signature": False})
                 if datetime.now() < datetime.fromtimestamp(payload["exp"]):
-                    return last_request.response_body.get("token")
+                    return last_request.response_body.get("response_text")
             except (jwt.DecodeError, jwt.InvalidTokenError, jwt.ExpiredSignatureError):
                 pass
 
@@ -133,8 +134,7 @@ class SbatMonitor:
             email_used=self.settings.sbat_username,
             request_type="authentication",
             url=self.AUTH_URL,
-            response=auth_response.status_code,
-            response_body={"token": auth_response.text},
+            response={"status_code": auth_response.status_code, "headers": auth_response.headers, "response_text": auth_response.text},
         )
 
         if auth_response.status_code == 200:
@@ -151,7 +151,7 @@ class SbatMonitor:
             for license_type in self.license_types:
                 for exam_center_id in self.exam_center_ids:
                     exam_center_name: str = EXAM_CENTER_MAP[exam_center_id]
-                    response: httpx.Response = await self._perform_check(headers, license_type, exam_center_id, exam_center_name)
+                    response, request_body = await self._perform_check(headers, license_type, exam_center_id, exam_center_name)
                     print(
                         f"Response status code {response.status_code}",
                         f"for license type '{license_type}' in '{exam_center_name}', {response.text}",
@@ -162,12 +162,12 @@ class SbatMonitor:
                         headers: dict[str, str] = {**self.STANDARD_HEADERS, "Authorization": f"Bearer {await self.authenticate()}"}
                         continue
 
-                    await self._handle_response(response, license_type, exam_center_id)
+                    await self._handle_response(response, request_body)
                     await asyncio.sleep(self.seconds_inbetween)
 
     async def _perform_check(
         self, headers: dict[str, str], license_type: str, exam_center_id: int, exam_center_name: str
-    ) -> httpx.Response:
+    ) -> tuple[httpx.Response, dict]:
         print(f"Checking '{exam_center_name}' for new time slots for license type '{license_type}'...")
         async with httpx.AsyncClient() as client:
             body: dict = {
@@ -176,30 +176,23 @@ class SbatMonitor:
                 "examType": "E2",
                 "startDate": datetime.combine(datetime.now().date(), datetime.min.time()).isoformat(),
             }
-            response: httpx.Response = await client.post(
-                self.CHECK_URL,
-                headers=headers,
-                json=body,
-                timeout=60,
+            return (
+                await client.post(
+                    self.CHECK_URL,
+                    headers=headers,
+                    json=body,
+                    timeout=60,
+                ),
+                body,
             )
-
-        await mongoDB.add_sbat_request(
-            db=self.db,
-            email_used=self.settings.sbat_username,
-            request_type="check_for_time_slots",
-            url=self.CHECK_URL,
-            request_body=body,
-            response=response.status_code,
-            response_body=response.text if response.status_code != 200 else None,
-        )
-
-        return response
 
     def _is_exp_error(self, response: httpx.Response) -> bool:
         www_authenticate: str | None = response.headers.get("WWW-Authenticate")
         return response.status_code == 401 and www_authenticate and "The token is expired" in www_authenticate
 
-    async def _handle_response(self, response: httpx.Response, license_type: str, exam_center_id: int) -> None:
+    async def _handle_response(self, response: httpx.Response, request_body: dict) -> None:
+        license_type: str = request_body.get("licenseType")
+        exam_center_id: int = request_body.get("examCenterId")
         exam_center_name: str = EXAM_CENTER_MAP[exam_center_id]
         if response.status_code == 200:
             data: dict = response.json()
@@ -207,17 +200,13 @@ class SbatMonitor:
             await self.notify_users_and_update_db(data, exam_center_id, exam_center_name, license_type)
 
         else:
-            www_authenticate: str | None = response.headers.get("WWW-Authenticate")
-            error_message: str = (
-                f"Unexpected status code {response.status_code}. "
-                f"Headers: {response.headers}. "
-                f"Response Body: {response.text}. "
-                f"WWW-Authenticate Header: {www_authenticate}"
-            )
-            await send_telegram_message(
-                f"Got unknown {response.status_code} error: {error_message}",
-                self.settings.telegram_bot_token,
-                self.settings.telegram_chat_id,
+            await mongoDB.add_sbat_request(
+                db=self.db,
+                email_used=self.settings.sbat_username,
+                request_type="check_for_time_slots",
+                url=self.CHECK_URL,
+                request_body=request_body,
+                response={"status_code": response.status_code, "headers": response.headers, "response_text": response.text},
             )
 
     async def notify_users_and_update_db(

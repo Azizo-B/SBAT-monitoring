@@ -39,13 +39,6 @@ async def add_time_slot(db: AsyncIOMotorDatabase, time_slot: dict, status: str) 
     return ExamTimeSlotRead(_id=result.inserted_id, **db_time_slot.model_dump())
 
 
-async def get_time_slots(db: AsyncIOMotorDatabase) -> list[ExamTimeSlotRead]:
-    time_slots: list[ExamTimeSlotRead] = []
-    async for time_slot in db["slots"].find():
-        time_slots.append(ExamTimeSlotRead.model_validate(time_slot))
-    return time_slots
-
-
 async def get_notified_time_slots(db: AsyncIOMotorDatabase, exam_center_id: int, license_type: str) -> set[int]:
     cursor: AsyncIOMotorCursor = db["slots"].find(
         {
@@ -102,19 +95,6 @@ async def add_subscriber(db: AsyncIOMotorDatabase, subscriber: SubscriberCreate)
 
 async def update_subscriber_preferences(db: AsyncIOMotorDatabase, subscriber_id: str, preferences: MonitorPreferences) -> None:
     await db["subscribers"].update_one({"_id": ObjectId(subscriber_id)}, {"$set": {"monitoring_preferences": {**preferences.model_dump()}}})
-
-
-async def get_subscribers(db: AsyncIOMotorDatabase) -> list[SubscriberRead]:
-    subscribers: list[SubscriberRead] = []
-    async for subscriber in db["subscribers"].find():
-        subscribers.append(SubscriberRead.model_validate(subscriber))
-    return subscribers
-
-
-async def get_subscriber(db: AsyncIOMotorDatabase, query: dict) -> SubscriberRead | None:
-    subscriber: dict | None = await db["subscribers"].find_one(query)
-    if subscriber:
-        return SubscriberRead.model_validate(subscriber)
 
 
 async def activate_subscription(db: AsyncIOMotorDatabase, stripe_customer_id: str, amount_paid: int) -> None:
@@ -207,8 +187,7 @@ async def add_sbat_request(
     request_type: str,
     url: str,
     request_body: dict | None = None,
-    response: str | None = None,
-    response_body: dict | None = None,
+    response: dict | None = None,
 ) -> SbatRequestRead:
     db_request = SbatRequestCreate(
         timestamp=datetime.now(UTC),
@@ -217,18 +196,10 @@ async def add_sbat_request(
         response=response,
         url=url,
         email_used=email_used,
-        response_body=response_body,
     )
 
     result: InsertOneResult = await db["requests"].insert_one(db_request.model_dump())
     return SbatRequestRead(_id=result.inserted_id, **db_request.model_dump())
-
-
-async def get_requests(db: AsyncIOMotorDatabase) -> list[SbatRequestRead]:
-    requests: list[SbatRequestRead] = []
-    async for request in db["requests"].find():
-        requests.append(SbatRequestRead.model_validate(request))
-    return requests
 
 
 async def get_last_sbat_auth_request(db: AsyncIOMotorDatabase) -> SbatRequestRead | None:
@@ -236,3 +207,30 @@ async def get_last_sbat_auth_request(db: AsyncIOMotorDatabase) -> SbatRequestRea
     if document:
         return SbatRequestRead(**document)
     return None
+
+
+async def get_subscribers(db: AsyncIOMotorDatabase, limit: int = 10) -> list[SubscriberRead]:
+    subscribers: list[SubscriberRead] = []
+    async for subscriber in db["subscribers"].find().sort("_id", -1).limit(limit):
+        subscribers.append(SubscriberRead.model_validate(subscriber))
+    return subscribers
+
+
+async def get_subscriber(db: AsyncIOMotorDatabase, query: dict) -> SubscriberRead | None:
+    subscriber: dict | None = await db["subscribers"].find_one(query)
+    if subscriber:
+        return SubscriberRead.model_validate(subscriber)
+
+
+async def get_requests(db: AsyncIOMotorDatabase, limit: int = 10) -> list[SbatRequestRead]:
+    requests: list[SbatRequestRead] = []
+    async for request in db["requests"].find().sort("_id", -1).limit(limit):
+        requests.append(SbatRequestRead.model_validate(request))
+    return requests
+
+
+async def get_time_slots(db: AsyncIOMotorDatabase, limit: int = 10) -> list[ExamTimeSlotRead]:
+    time_slots: list[ExamTimeSlotRead] = []
+    async for time_slot in db["slots"].find().sort("_id", -1).limit(limit):
+        time_slots.append(ExamTimeSlotRead.model_validate(time_slot))
+    return time_slots
