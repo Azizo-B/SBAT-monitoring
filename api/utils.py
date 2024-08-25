@@ -3,7 +3,7 @@ import datetime
 import smtplib
 from email.message import EmailMessage
 from email.utils import formatdate
-from typing import Any, Callable, Coroutine
+from typing import Any, Callable, Coroutine, Iterable
 
 import httpx
 import jwt
@@ -56,7 +56,7 @@ async def send_telegram_message(message: str, bot_token: str, chat_id: str) -> N
     await retry_request(send_request)
 
 
-async def send_telegram_message_to_all(message: str, bot_token: str, recipient_ids: list):
+async def send_telegram_message_to_all(message: str, bot_token: str, recipient_ids: Iterable):
     tasks: list[Coroutine] = [send_telegram_message(message, bot_token, chat_id) for chat_id in recipient_ids]
     await asyncio.gather(*tasks)
 
@@ -161,7 +161,7 @@ def render_template(template_name: str, **kwargs) -> str:
 
 def send_email(
     subject: str,
-    recipient_list: list[str],
+    recipient_list: Iterable[str],
     sender: str,
     password: str,
     smtp_server: str,
@@ -179,7 +179,7 @@ def send_email(
     msg = EmailMessage()
     msg["From"] = sender
     if len(recipient_list) == 1:
-        msg["To"] = recipient_list[0]
+        msg["To"] = recipient_list.pop(0)
     else:
         msg["To"] = sender
         msg["Bcc"] = ", ".join(recipient_list)

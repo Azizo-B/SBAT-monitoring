@@ -1,16 +1,12 @@
-from bson import ObjectId
-from motor.motor_asyncio import AsyncIOMotorDatabase
-
-from api.db import mongoDB
-
-from ..dependencies import Settings
-from ..models import SubscriberRead
+from ..db.base_repo import BaseRepository
+from ..models.settings import Settings
+from ..models.subscriber import SubscriberRead
 from ..utils import create_single_use_invite_link, send_email
 
 
-async def handle_invoice_payment_failed(db: AsyncIOMotorDatabase, settings: Settings, invoice: dict) -> None:
+async def handle_invoice_payment_failed(repo: BaseRepository, settings: Settings, invoice: dict) -> None:
     cus: str | None = invoice.get("customer")
-    subscriber: SubscriberRead | None = await mongoDB.get_subscriber(db, {"stripe_customer_id": cus})
+    subscriber: SubscriberRead | None = await repo.find_subscriber_by_stripe_customer_id(cus)
     if subscriber:
         send_email(
             "Betalingsfout - Actie Vereist",
@@ -25,14 +21,13 @@ async def handle_invoice_payment_failed(db: AsyncIOMotorDatabase, settings: Sett
         )
 
 
-async def handle_invoice_payment_succeeded(db: AsyncIOMotorDatabase, invoice: dict) -> None:
-    await mongoDB.activate_subscription(db, invoice.get("customer"), invoice.get("amount_paid"))
+async def handle_invoice_payment_succeeded(repo: BaseRepository, invoice: dict) -> SubscriberRead | None:
+    return await repo.activate_subscriber_subscription(invoice.get("customer"), invoice.get("amount_paid"))
 
 
-async def handle_subscription_deleted(db: AsyncIOMotorDatabase, settings: Settings, subscription: dict) -> None:
+async def handle_subscription_deleted(repo: BaseRepository, settings: Settings, subscription: dict) -> None:
     cus: str | None = subscription.get("customer")
-    await mongoDB.deactivate_subscription(db, cus)
-    subscriber: SubscriberRead | None = await mongoDB.get_subscriber(db, {"stripe_customer_id": cus})
+    subscriber: SubscriberRead | None = await repo.deactivate_subscriber_subscription(cus)
     if subscriber:
         send_email(
             "Bevestiging van Annulering van je Abonnement.",
@@ -47,12 +42,12 @@ async def handle_subscription_deleted(db: AsyncIOMotorDatabase, settings: Settin
         )
 
 
-async def handle_checkout_session_completed(db: AsyncIOMotorDatabase, settings: Settings, session: dict) -> None:
-    sub: SubscriberRead | None = await mongoDB.get_subscriber(db, {"_id": ObjectId(session.get("client_reference_id"))})
+async def handle_checkout_session_completed(repo: BaseRepository, settings: Settings, session: dict) -> None:
+    sub: SubscriberRead | None = await repo.find_subscriber_by_id(session.get("client_reference_id"))
     telegram_link: str | None = await create_single_use_invite_link(
         settings.telegram_chat_id, settings.telegram_bot_token, name=sub.name if sub else None
     )
-    subscriber: SubscriberRead = await mongoDB.process_checkout_session(db, session, telegram_link)
+    subscriber: SubscriberRead = await repo.process_checkout_session(session, telegram_link)
     send_email(
         "Betaling geslaagd! Uw voorkeuren zijn ontvangen.",
         [subscriber.email],

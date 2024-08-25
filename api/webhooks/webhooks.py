@@ -1,8 +1,9 @@
 import stripe
 from fastapi import APIRouter, Depends, HTTPException, Request
-from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from ..dependencies import Settings, get_db, get_settings
+from ..db.base_repo import BaseRepository
+from ..dependencies import get_repo, get_settings
+from ..models.settings import Settings
 from ..utils import send_telegram_message
 from .stripe_handlers import (
     handle_checkout_session_completed,
@@ -17,7 +18,7 @@ webhooks = APIRouter(tags=["Webhooks"])
 
 @webhooks.post("/stripe-webhook")
 async def stripe_webhook(
-    request: Request, settings: Settings = Depends(get_settings), db: AsyncIOMotorDatabase = Depends(get_db)
+    request: Request, settings: Settings = Depends(get_settings), repo: BaseRepository = Depends(get_repo("mongodb"))
 ) -> dict[str, str]:
     stripe.api_key = settings.stripe_secret_key
 
@@ -31,39 +32,37 @@ async def stripe_webhook(
     except stripe.error.SignatureVerificationError as e:
         raise HTTPException(status_code=400, detail="Invalid signature") from e
 
-    evt: dict | None = await db["stripe_events"].find_one({"id": event["id"]})
-    if not evt:
-        await db["stripe_events"].insert_one(event)
+    await repo.create_stripe_event(event)
 
     if event["type"] == "checkout.session.completed":
         session: dict = event["data"]["object"]
-        await handle_checkout_session_completed(db, settings, session)
+        await handle_checkout_session_completed(repo, settings, session)
     elif event["type"] == "invoice.payment_succeeded":
         invoice: dict = event["data"]["object"]
-        await handle_invoice_payment_succeeded(db, invoice)
+        await handle_invoice_payment_succeeded(repo, invoice)
     elif event["type"] == "invoice.payment_failed":
         invoice: dict = event["data"]["object"]
-        await handle_invoice_payment_failed(db, settings, invoice)
+        await handle_invoice_payment_failed(repo, settings, invoice)
     elif event["type"] == "customer.subscription.deleted":
         subscription: dict = event["data"]["object"]
-        await handle_subscription_deleted(db, settings, subscription)
+        await handle_subscription_deleted(repo, settings, subscription)
 
     return {"status": "success"}
 
 
 @webhooks.post("/telegram-webhook")
 async def telegram_webhook(
-    request: Request, db: AsyncIOMotorDatabase = Depends(get_db), settings: Settings = Depends(get_settings)
+    request: Request, repo: BaseRepository = Depends(get_repo("mongodb")), settings: Settings = Depends(get_settings)
 ) -> dict[str, str]:
     update: dict = await request.json()
 
     if "chat_join_request" in update:
-        await handle_chat_join_request(db, settings, update)
+        await handle_chat_join_request(repo, settings, update)
 
     if message := update.get("message"):
         input_text: str = message.get("text", "").lower().strip()
         if input_text in ("/start", "/start@sbatmonitoringbot"):
-            response: str = await handle_start(db, message)
+            response: str = await handle_start(repo, message)
             await send_telegram_message(response, settings.telegram_bot_token, message.get("chat").get("id"))
         if input_text in ("/voorkeuren", "/voorkeuren@sbatmonitoringbot"):
             response: str = await handle_voorkeuren(message)

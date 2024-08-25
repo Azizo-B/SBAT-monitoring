@@ -1,10 +1,11 @@
 from datetime import UTC, datetime
-from typing import Annotated, Literal
+from typing import Literal
 
-from bson import ObjectId
-from pydantic import BaseModel, BeforeValidator, EmailStr, Field, PositiveInt, field_validator
+from pydantic import BaseModel, Field, PositiveInt, field_validator
 
-PyObjectId = Annotated[str, BeforeValidator(lambda v: str(ObjectId(v)))]
+from .common import PyObjectId
+
+EXAM_CENTER_MAP: dict[int, str] = {1: "sintdenijswestrem", 7: "brakel", 8: "eeklo", 9: "erembodegem", 10: "sintniklaas"}
 
 
 class MonitorStatus(BaseModel):
@@ -20,9 +21,6 @@ class MonitorStatus(BaseModel):
     stopped_due_to: str | None = None
 
 
-EXAM_CENTER_MAP: dict[int, str] = {1: "sintdenijswestrem", 7: "brakel", 8: "eeklo", 9: "erembodegem", 10: "sintniklaas"}
-
-
 class MonitorPreferences(BaseModel):
     license_types: list[Literal["B", "AM"]] = ["B"]
     exam_center_ids: list[int] = [1]
@@ -36,31 +34,6 @@ class MonitorPreferences(BaseModel):
 
 class MonitorConfiguration(MonitorPreferences):
     seconds_inbetween: PositiveInt = 300
-
-
-class SubscriberBase(BaseModel):
-    name: str
-    email: EmailStr
-    stripe_customer_id: str | None = None
-    stripe_ids: list[str] = []
-    phone: str | None = None
-    telegram_link: str | None = None
-    telegram_user: dict = {}
-    extra_details: dict = {}
-    total_spent: int = 0
-    role: str = "user"
-    is_subscription_active: bool = False
-    monitoring_preferences: MonitorPreferences = MonitorPreferences()
-    account_created_on: datetime = datetime.now(UTC)
-
-
-class SubscriberCreate(SubscriberBase):
-    password: str
-
-
-class SubscriberRead(SubscriberBase):
-    id: PyObjectId = Field(..., alias="_id")
-    hashed_password: str
 
 
 class SbatRequestBase(BaseModel):
@@ -106,4 +79,4 @@ class ExamTimeSlotCreate(ExamTimeSlotBase):
 
 
 class ExamTimeSlotRead(ExamTimeSlotBase):
-    _id: PyObjectId
+    id: PyObjectId = Field(..., alias="_id")

@@ -46,6 +46,10 @@ The **SBAT Monitoring System** is a Python API designed to monitor and notify us
 
   The Telegram bot, used for sending notifications, is integrated into the system via webhooks. This ensures that messages are sent and received in real-time, providing users with timely updates on available driving exam slots. Webhooks are also used to handle events from Stripe, ensuring that subscription statuses and payment events are processed immediately.
 
+- ### Repository Pattern Implementation
+
+  To maintain a clean separation of concerns and facilitate easier testing, the repository pattern is employed. This pattern abstracts the data access layer, allowing different data sources (e.g., MongoDB, SQL) to be accessed via a common interface. The repository pattern is implemented through the BaseRepository interface, with concrete implementations like MongoRepository providing specific data access logic. This approach promotes flexibility and maintainability, as changes to the data source or access logic require minimal modifications to the rest of the application.
+
 - ### Singleton Pattern for SbatMonitor
 
   The `SbatMonitor` class is designed as a singleton. This design choice ensures that only one instance of the monitor is created and shared across the application. This pattern prevents multiple instances from running concurrently, which could lead to conflicting operations. It also simplifies the management and tracking of the monitoring task's state, providing a consistent and controlled environment.

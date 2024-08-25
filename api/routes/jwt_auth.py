@@ -1,20 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from api.db import mongoDB
-
-from ..dependencies import Settings, get_db, get_settings
-from ..models import SubscriberCreate, SubscriberRead
+from ..db.base_repo import BaseRepository
+from ..dependencies import get_repo, get_settings
+from ..models.settings import Settings
+from ..models.subscriber import SubscriberCreate, SubscriberRead
 from ..utils import create_access_token
 
 auth = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @auth.post("/signup")
-async def subscribe(subscriber: SubscriberCreate, db: AsyncIOMotorDatabase = Depends(get_db)) -> dict[str, str]:
+async def subscribe(subscriber: SubscriberCreate, repo: BaseRepository = Depends(get_repo("mongodb"))) -> dict[str, str]:
     try:
-        await mongoDB.add_subscriber(db, subscriber)
+        await repo.create_subscriber(subscriber)
         return {"message": "Subscribed successfully!"}
     except Exception as e:
         raise HTTPException(status_code=400, detail="Email already subscribed") from e
@@ -22,9 +21,11 @@ async def subscribe(subscriber: SubscriberCreate, db: AsyncIOMotorDatabase = Dep
 
 @auth.post("/token")
 async def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncIOMotorDatabase = Depends(get_db), settings: Settings = Depends(get_settings)
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    repo: BaseRepository = Depends(get_repo("mongodb")),
+    settings: Settings = Depends(get_settings),
 ) -> dict[str, str]:
-    subscriber: SubscriberRead | None = await mongoDB.authenticate_subscriber(db, form_data.username, form_data.password)
+    subscriber: SubscriberRead | None = await repo.verify_subscriber_credentials(form_data.username, form_data.password)
     if not subscriber:
         raise HTTPException(status_code=401, detail="Incorrect username or password", headers={"WWW-Authenticate": "Bearer"})
 

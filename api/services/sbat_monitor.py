@@ -1,15 +1,23 @@
 import asyncio
-from datetime import datetime, timedelta
+import json
+from datetime import UTC, datetime, timedelta
 from multiprocessing import AuthenticationError
 from typing import Literal, NoReturn
 
 import httpx
 import jwt
-from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from ..db import mongoDB
-from ..dependencies import Settings
-from ..models import EXAM_CENTER_MAP, MonitorConfiguration, MonitorStatus, SbatRequestRead
+from ..db.base_repo import BaseRepository
+from ..models.sbat import (
+    EXAM_CENTER_MAP,
+    ExamTimeSlotCreate,
+    ExamTimeSlotRead,
+    MonitorConfiguration,
+    MonitorStatus,
+    SbatRequestCreate,
+    SbatRequestRead,
+)
+from ..models.settings import Settings
 from ..utils import send_email, send_telegram_message_to_all
 
 
@@ -26,9 +34,10 @@ class SbatMonitor:
         "Accept-Encoding": "gzip, deflate, br",
     }
 
-    def __init__(self, db: AsyncIOMotorDatabase, settings: Settings, config: MonitorConfiguration) -> None:
-        self.db: AsyncIOMotorDatabase = db
+    def __init__(self, repo: BaseRepository, settings: Settings, config: MonitorConfiguration) -> None:
+        self.repo: BaseRepository = repo
         self.settings: Settings = settings
+        print("REPOOOOOOOOOOOOOOOOO", repo, self)
 
         # Initialize with default values to ensure consistency
         self.license_types: list[Literal["B", "AM"]] = ["B"]
@@ -112,12 +121,12 @@ class SbatMonitor:
         )
 
     async def authenticate(self) -> str:
-        last_request: SbatRequestRead | None = await mongoDB.get_last_sbat_auth_request(self.db)
+        last_request: SbatRequestRead | None = await self.repo.find_last_sbat_auth_request()
         if last_request:
             try:
-                payload: dict = jwt.decode(last_request.response_body.get("response_text"), options={"verify_signature": False})
+                payload: dict = jwt.decode(last_request.response.get("response_text"), options={"verify_signature": False})
                 if datetime.now() < datetime.fromtimestamp(payload["exp"]):
-                    return last_request.response_body.get("response_text")
+                    return last_request.response.get("response_text")
             except (jwt.DecodeError, jwt.InvalidTokenError, jwt.ExpiredSignatureError):
                 pass
 
@@ -129,13 +138,14 @@ class SbatMonitor:
                 timeout=60,
             )
 
-        await mongoDB.add_sbat_request(
-            db=self.db,
-            email_used=self.settings.sbat_username,
+        sbat_request = SbatRequestCreate(
+            timestamp=datetime.now(UTC),
             request_type="authentication",
-            url=self.AUTH_URL,
             response={"status_code": auth_response.status_code, "headers": auth_response.headers, "response_text": auth_response.text},
+            url=self.AUTH_URL,
+            email_used=self.settings.sbat_username,
         )
+        await self.repo.create_sbat_request(sbat_request)
 
         if auth_response.status_code == 200:
             token: str = auth_response.text
@@ -200,20 +210,21 @@ class SbatMonitor:
             await self.notify_users_and_update_db(data, exam_center_id, exam_center_name, license_type)
 
         else:
-            await mongoDB.add_sbat_request(
-                db=self.db,
-                email_used=self.settings.sbat_username,
+            sbat_request = SbatRequestCreate(
+                timestamp=datetime.now(UTC),
                 request_type="check_for_time_slots",
-                url=self.CHECK_URL,
                 request_body=request_body,
                 response={"status_code": response.status_code, "headers": response.headers, "response_text": response.text},
+                url=self.CHECK_URL,
+                email_used=self.settings.sbat_username,
             )
+            await self.repo.create_sbat_request(sbat_request)
 
     async def notify_users_and_update_db(
         self, time_slots: list[dict], exam_center_id: int, exam_center_name: str, license_type: str
     ) -> None:
         current_time_slots = set()
-        notified_time_slots: set[int] = await mongoDB.get_notified_time_slots(self.db, exam_center_id, license_type)
+        notified_time_slots: set[int] = await self.repo.find_notified_time_slot_ids(exam_center_id, license_type)
         message: str = ""
 
         for time_slot in time_slots:
@@ -228,16 +239,30 @@ class SbatMonitor:
                 if new_time_slot_messag not in message:
                     message += new_time_slot_messag
 
-                if await mongoDB.get_time_slot_status(self.db, exam_id) == "taken":
-                    await mongoDB.set_time_slot_status(self.db, exam_id, "notified")
+                found_slot: ExamTimeSlotRead | None = await self.repo.find_time_slot_by_sbat_exam_id(exam_id)
+                if found_slot and found_slot.status == "taken":
+                    await self.repo.update_time_slot_status(exam_id, "notified")
                 else:
-                    await mongoDB.add_time_slot(self.db, time_slot, status="notified")
+                    time_slot_to_add = ExamTimeSlotCreate(
+                        exam_id=time_slot["id"],
+                        start_time=datetime.fromisoformat(time_slot["from"]),
+                        end_time=datetime.fromisoformat(time_slot["till"]),
+                        status="notified",
+                        is_public=time_slot["isPublic"],
+                        day_id=time_slot["dayScheduleId"],
+                        driving_school=time_slot["drivingSchool"],
+                        exam_center_id=time_slot["examCenterId"],
+                        exam_type=time_slot["examType"],
+                        examinee=time_slot["examinee"],
+                        types_blob=json.loads(time_slot["typesBlob"]),
+                    )
+                    await self.repo.create_time_slot(time_slot_to_add)
 
         if message:
             subject: str = f"New driving exam time slots available for license type '{license_type}' at exam center '{exam_center_name}':"
             message: str = subject + "\nLink: https://rijbewijs.sbat.be/praktijk/examen/Login \n" + message
-            email_recipients: list[str] = await mongoDB.get_all_subscribed_mails(self.db, exam_center_id, license_type)
-            telegram_recipients: list[str] = await mongoDB.get_all_telegram_user_ids(self.db, exam_center_id, license_type)
+            email_recipients: set[str] = await self.repo.find_all_subscribed_emails(exam_center_id, license_type)
+            telegram_recipients: set[int] = await self.repo.find_all_subscribed_telegram_ids(exam_center_id, license_type)
             send_email(
                 subject,
                 email_recipients,
@@ -250,5 +275,5 @@ class SbatMonitor:
             await send_telegram_message_to_all(message, self.settings.telegram_bot_token, telegram_recipients)
 
         for exam_id in notified_time_slots - current_time_slots:
-            await mongoDB.set_time_slot_status(self.db, exam_id, "taken")
-            await mongoDB.set_first_taken_at(self.db, exam_id)
+            await self.repo.update_time_slot_status(exam_id, "taken")
+            await self.repo.mark_time_slot_as_taken(exam_id)

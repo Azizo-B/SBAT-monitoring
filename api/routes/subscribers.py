@@ -1,19 +1,17 @@
 from fastapi import APIRouter, Depends
-from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from api.db import mongoDB
-
-from ..dependencies import get_admin_user, get_current_user, get_db
-from ..models import MonitorPreferences, SubscriberRead
+from ..db.base_repo import BaseRepository
+from ..dependencies import get_admin_user, get_current_user, get_repo
+from ..models.subscriber import MonitorPreferences, SubscriberRead
 
 router = APIRouter(prefix="/subscribers", tags=["Subscribers"])
 
 
 @router.get("/")
 async def get_subscribers(
-    limit: int = 10, db: AsyncIOMotorDatabase = Depends(get_db), _: SubscriberRead = Depends(get_admin_user)
+    limit: int = 10, repo: BaseRepository = Depends(get_repo("mongodb")), _: SubscriberRead = Depends(get_admin_user)
 ) -> list[SubscriberRead]:
-    return await mongoDB.get_subscribers(db, limit)
+    return await repo.list_subscribers(limit)
 
 
 @router.get("/me")
@@ -23,7 +21,7 @@ async def read_users_me(current_user: SubscriberRead = Depends(get_current_user)
 
 @router.post("/me/preferences")
 async def update_users_monitoring_preferences(
-    preferences: MonitorPreferences, current_user=Depends(get_current_user), db: AsyncIOMotorDatabase = Depends(get_db)
+    preferences: MonitorPreferences, current_user=Depends(get_current_user), repo: BaseRepository = Depends(get_repo("mongodb"))
 ) -> dict[str, str]:
-    await mongoDB.update_subscriber_preferences(db, current_user.id, preferences)
+    await repo.update_subscriber_preferences(current_user.id, preferences)
     return {"detail": "Preferences saved!"}
