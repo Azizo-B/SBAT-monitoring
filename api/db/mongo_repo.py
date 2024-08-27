@@ -17,6 +17,13 @@ class MongoRepository(BaseRepository):
     def __init__(self, db: AsyncIOMotorDatabase) -> None:
         self.db: AsyncIOMotorDatabase = db
 
+    # SERVER RESPONSE TIME
+    async def create_server_response_time(self, start, end, request_body, response_size):
+        result: InsertOneResult = await self.db["server_response_times"].insert_one(
+            {"start": start, "end": end, "request_body": request_body, "response_size": response_size}
+        )
+        return result.inserted_id
+
     # TIME_SLOTS
     async def create_time_slot(self, time_slot: ExamTimeSlotCreate) -> ExamTimeSlotRead:
         result: InsertOneResult = await self.db["slots"].insert_one(time_slot.model_dump())
@@ -46,7 +53,7 @@ class MongoRepository(BaseRepository):
 
     async def mark_time_slot_as_taken(self, sbat_exam_id: int) -> ExamTimeSlotRead | None:
         time_slot: dict | None = await self.db["slots"].find_one_and_update(
-            {"exam_id": sbat_exam_id, "$or": [{"first_taken_at": {"$exists": False}}, {"first_taken_at": False}]},
+            {"exam_id": sbat_exam_id, "first_taken_at": None},
             {"$set": {"first_taken_at": datetime.now(UTC)}},
             return_document=True,
         )
@@ -117,13 +124,22 @@ class MongoRepository(BaseRepository):
 
     async def find_all_subscribed_emails(self, exam_center_id: int, license_type: str) -> set[str]:
         cursor: AsyncIOMotorCursor = self.db["subscribers"].find(
-            {"monitoring_preferences.exam_center_ids": exam_center_id, "monitoring_preferences.license_types": license_type}, {"email": 1}
+            {
+                "is_subscription_active": True,
+                "monitoring_preferences.exam_center_ids": exam_center_id,
+                "monitoring_preferences.license_types": license_type,
+            },
+            {"email": 1},
         )
         return {subscriber["email"] async for subscriber in cursor}
 
     async def find_all_subscribed_telegram_ids(self, exam_center_id: int, license_type: str) -> set[int]:
         cursor: AsyncIOMotorCursor = self.db["subscribers"].find(
-            {"monitoring_preferences.exam_center_ids": exam_center_id, "monitoring_preferences.license_types": license_type},
+            {
+                "is_subscription_active": True,
+                "monitoring_preferences.exam_center_ids": exam_center_id,
+                "monitoring_preferences.license_types": license_type,
+            },
             {"telegram_user.id": 1, "_id": 0},
         )
         return {subscriber.get("telegram_user").get("id") async for subscriber in cursor if subscriber.get("telegram_user").get("id")}

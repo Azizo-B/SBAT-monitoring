@@ -1,3 +1,4 @@
+import datetime
 from abc import ABC, abstractmethod
 
 from bson import ObjectId
@@ -7,6 +8,12 @@ from ..models.subscriber import SubscriberCreate, SubscriberRead
 
 
 class BaseRepository(ABC):
+    @abstractmethod
+    async def create_server_response_time(self, start: datetime, end: datetime, request_body: dict, response_size: int):
+        """
+        Create a new server response time entry in the repository.
+        """
+
     @abstractmethod
     async def create_time_slot(self, time_slot: ExamTimeSlotCreate) -> ExamTimeSlotRead:
         """

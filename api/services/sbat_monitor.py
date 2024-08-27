@@ -161,11 +161,11 @@ class SbatMonitor:
             for license_type in self.license_types:
                 for exam_center_id in self.exam_center_ids:
                     exam_center_name: str = EXAM_CENTER_MAP[exam_center_id]
+                    start_time: datetime = datetime.now(UTC)
                     response, request_body = await self._perform_check(headers, license_type, exam_center_id, exam_center_name)
-                    print(
-                        f"Response status code {response.status_code}",
-                        f"for license type '{license_type}' in '{exam_center_name}', {response.text}",
-                    )
+                    end_time: datetime = datetime.now(UTC)
+                    response_size: int = len(response.content) if response.content else 0
+                    await self.repo.create_server_response_time(start_time, end_time, request_body, response_size)
 
                     # possible exp of token
                     if self._is_exp_error(response):
@@ -245,6 +245,8 @@ class SbatMonitor:
                 else:
                     time_slot_to_add = ExamTimeSlotCreate(
                         exam_id=time_slot["id"],
+                        first_found_at=datetime.now(UTC),
+                        found_at=datetime.now(UTC),
                         start_time=datetime.fromisoformat(time_slot["from"]),
                         end_time=datetime.fromisoformat(time_slot["till"]),
                         status="notified",

@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field, PositiveInt, field_validator
@@ -56,9 +56,9 @@ class SbatRequestRead(SbatRequestBase):
 class ExamTimeSlotBase(BaseModel):
     exam_id: int
 
-    first_found_at: datetime = datetime.now(UTC)
+    first_found_at: datetime
     first_taken_at: datetime | None = None
-    found_at: datetime = datetime.now(UTC)
+    found_at: datetime
     taken_at: datetime | None = None
 
     start_time: datetime

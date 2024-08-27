@@ -13,7 +13,7 @@ from jinja2 import Environment, FileSystemLoader, Template
 
 def create_access_token(data: dict, minutes: int, secret_key: str, algorithm: str) -> str:
     to_encode: dict = data.copy()
-    expire: datetime = datetime.datetime.now() + datetime.timedelta(minutes=minutes)
+    expire: datetime.datetime = datetime.datetime.now() + datetime.timedelta(minutes=minutes)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, secret_key, algorithm=algorithm)
 
@@ -83,7 +83,7 @@ async def revoke_invite_link(chat_id: str, invite_link: str, bot_token: str) -> 
     url: str = f"https://api.telegram.org/bot{bot_token}/revokeChatInviteLink"
     payload: dict = {"chat_id": chat_id, "invite_link": invite_link}
 
-    async def revoke_request() -> bool:
+    async def revoke_request() -> None:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response: httpx.Response = await client.post(url, json=payload)
             response.raise_for_status()
@@ -161,7 +161,7 @@ def render_template(template_name: str, **kwargs) -> str:
 
 def send_email(
     subject: str,
-    recipient_list: Iterable[str],
+    recipient_list: list[str] | set[str],
     sender: str,
     password: str,
     smtp_server: str,
@@ -179,7 +179,7 @@ def send_email(
     msg = EmailMessage()
     msg["From"] = sender
     if len(recipient_list) == 1:
-        msg["To"] = recipient_list.pop(0)
+        msg["To"] = recipient_list.pop()
     else:
         msg["To"] = sender
         msg["Bcc"] = ", ".join(recipient_list)

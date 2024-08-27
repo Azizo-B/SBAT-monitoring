@@ -9,8 +9,8 @@ async def handle_chat_join_request(repo: BaseRepository, settings: Settings, upd
 
     chat_join_request: dict = update.get("chat_join_request", {})
     if str(chat_join_request.get("chat", {}).get("id")) == settings.telegram_chat_id:
-        invt: str = chat_join_request.get("invite_link").get("invite_link")
-        telegram_user: dict = chat_join_request.get("from")
+        invt: str = chat_join_request.get("invite_link", {}).get("invite_link")
+        telegram_user: dict = chat_join_request.get("from", {})
 
         subscriber: SubscriberRead | None = await repo.find_subscriber_by_telegram_link(invt)
         if subscriber and not subscriber.telegram_user:
