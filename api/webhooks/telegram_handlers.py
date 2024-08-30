@@ -1,3 +1,5 @@
+from bson import ObjectId
+
 from ..db.base_repo import BaseRepository
 from ..models.settings import Settings
 from ..models.subscriber import SubscriberRead
@@ -12,9 +14,9 @@ async def handle_chat_join_request(repo: BaseRepository, settings: Settings, upd
         invt: str = chat_join_request.get("invite_link", {}).get("invite_link")
         telegram_user: dict = chat_join_request.get("from", {})
 
-        subscriber: SubscriberRead | None = await repo.find_subscriber_by_telegram_link(invt)
+        subscriber: SubscriberRead | None = await repo.find_one("subscribers", {"telegram_link": invt}, SubscriberRead)
         if subscriber and not subscriber.telegram_user:
-            await repo.update_subscriber_telegram_user(subscriber.id, telegram_user)
+            await repo.update_one("subscribers", {"_id": ObjectId(subscriber.id)}, {"telegram_user": telegram_user}, SubscriberRead)
             await accept_join_request(settings.telegram_chat_id, telegram_user.get("id"), settings.telegram_bot_token)
             await revoke_invite_link(settings.telegram_chat_id, invt, settings.telegram_bot_token)
         else:

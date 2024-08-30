@@ -19,7 +19,7 @@ class SubscriberBase(BaseModel):
     role: str = "user"
     is_subscription_active: bool = False
     monitoring_preferences: MonitorPreferences = MonitorPreferences()
-    account_created_on: datetime = datetime.now(UTC)
+    account_created_on: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class SubscriberCreate(SubscriberBase):

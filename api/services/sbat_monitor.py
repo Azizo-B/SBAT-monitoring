@@ -16,6 +16,8 @@ from ..models.sbat import (
     MonitorStatus,
     SbatRequestCreate,
     SbatRequestRead,
+    ServerResponseTimeCreate,
+    ServerResponseTimeRead,
 )
 from ..models.settings import Settings
 from ..utils import send_email, send_telegram_message_to_all
@@ -37,7 +39,6 @@ class SbatMonitor:
     def __init__(self, repo: BaseRepository, settings: Settings, config: MonitorConfiguration) -> None:
         self.repo: BaseRepository = repo
         self.settings: Settings = settings
-        print("REPOOOOOOOOOOOOOOOOO", repo, self)
 
         # Initialize with default values to ensure consistency
         self.license_types: list[Literal["B", "AM"]] = ["B"]
@@ -145,7 +146,7 @@ class SbatMonitor:
             url=self.AUTH_URL,
             email_used=self.settings.sbat_username,
         )
-        await self.repo.create_sbat_request(sbat_request)
+        await self.repo.create("requests", sbat_request, SbatRequestRead)
 
         if auth_response.status_code == 200:
             token: str = auth_response.text
@@ -165,7 +166,13 @@ class SbatMonitor:
                     response, request_body = await self._perform_check(headers, license_type, exam_center_id, exam_center_name)
                     end_time: datetime = datetime.now(UTC)
                     response_size: int = len(response.content) if response.content else 0
-                    await self.repo.create_server_response_time(start_time, end_time, request_body, response_size)
+                    await self.repo.create(
+                        "server_response_times",
+                        ServerResponseTimeCreate.model_validate(
+                            {"start": start_time, "end": end_time, "request_body": request_body, "response_size": response_size}
+                        ),
+                        ServerResponseTimeRead,
+                    )
 
                     # possible exp of token
                     if self._is_exp_error(response):
@@ -218,7 +225,7 @@ class SbatMonitor:
                 url=self.CHECK_URL,
                 email_used=self.settings.sbat_username,
             )
-            await self.repo.create_sbat_request(sbat_request)
+            await self.repo.create("requests", sbat_request, SbatRequestRead)
 
     async def notify_users_and_update_db(
         self, time_slots: list[dict], exam_center_id: int, exam_center_name: str, license_type: str
@@ -239,7 +246,7 @@ class SbatMonitor:
                 if new_time_slot_messag not in message:
                     message += new_time_slot_messag
 
-                found_slot: ExamTimeSlotRead | None = await self.repo.find_time_slot_by_sbat_exam_id(exam_id)
+                found_slot: ExamTimeSlotRead | None = await self.repo.find_one("slots", {"exam_id": exam_id}, ExamTimeSlotRead)
                 if found_slot and found_slot.status == "taken":
                     await self.repo.update_time_slot_status(exam_id, "notified")
                 else:
@@ -258,7 +265,7 @@ class SbatMonitor:
                         examinee=time_slot["examinee"],
                         types_blob=json.loads(time_slot["typesBlob"]),
                     )
-                    await self.repo.create_time_slot(time_slot_to_add)
+                    await self.repo.create("slots", time_slot_to_add, ExamTimeSlotRead)
 
         if message:
             subject: str = f"New driving exam time slots available for license type '{license_type}' at exam center '{exam_center_name}':"
@@ -278,4 +285,6 @@ class SbatMonitor:
 
         for exam_id in notified_time_slots - current_time_slots:
             await self.repo.update_time_slot_status(exam_id, "taken")
-            await self.repo.mark_time_slot_as_taken(exam_id)
+            await self.repo.update_one(
+                "slots", {"exam_id": exam_id, "first_taken_at": None}, {"first_taken_at": datetime.now(UTC)}, ExamTimeSlotRead
+            )

@@ -1,3 +1,5 @@
+from bson import ObjectId
+
 from ..db.base_repo import BaseRepository
 from ..models.settings import Settings
 from ..models.subscriber import SubscriberRead
@@ -6,7 +8,7 @@ from ..utils import create_single_use_invite_link, send_email
 
 async def handle_invoice_payment_failed(repo: BaseRepository, settings: Settings, invoice: dict) -> None:
     cus: str | None = invoice.get("customer")
-    subscriber: SubscriberRead | None = await repo.find_subscriber_by_stripe_customer_id(cus)
+    subscriber: SubscriberRead | None = await repo.find_one("subscribers", {"stripe_customer_id": cus}, SubscriberRead)
     if subscriber:
         send_email(
             "Betalingsfout - Actie Vereist",
@@ -27,7 +29,9 @@ async def handle_invoice_payment_succeeded(repo: BaseRepository, invoice: dict) 
 
 async def handle_subscription_deleted(repo: BaseRepository, settings: Settings, subscription: dict) -> None:
     cus: str | None = subscription.get("customer")
-    subscriber: SubscriberRead | None = await repo.deactivate_subscriber_subscription(cus)
+    subscriber: SubscriberRead | None = await repo.update_one(
+        "subscribers", {"stripe_customer_id": cus}, {"is_subscription_active": False}, SubscriberRead
+    )
     if subscriber:
         send_email(
             "Bevestiging van Annulering van je Abonnement.",
@@ -43,7 +47,7 @@ async def handle_subscription_deleted(repo: BaseRepository, settings: Settings, 
 
 
 async def handle_checkout_session_completed(repo: BaseRepository, settings: Settings, session: dict) -> None:
-    sub: SubscriberRead | None = await repo.find_subscriber_by_id(session.get("client_reference_id"))
+    sub: SubscriberRead | None = await repo.find_one("subscribers", {"_id": ObjectId(session.get("client_reference_id"))}, SubscriberRead)
     telegram_link: str | None = await create_single_use_invite_link(
         settings.telegram_chat_id, settings.telegram_bot_token, name=sub.name if sub else None
     )

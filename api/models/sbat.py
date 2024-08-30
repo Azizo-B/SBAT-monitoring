@@ -80,3 +80,18 @@ class ExamTimeSlotCreate(ExamTimeSlotBase):
 
 class ExamTimeSlotRead(ExamTimeSlotBase):
     id: PyObjectId = Field(..., alias="_id")
+
+
+class ServerResponseTimeBase(BaseModel):
+    start: datetime
+    end: datetime
+    request_body: dict
+    response_size: int
+
+
+class ServerResponseTimeCreate(ServerResponseTimeBase):
+    pass
+
+
+class ServerResponseTimeRead(ServerResponseTimeBase):
+    id: PyObjectId = Field(..., alias="_id")

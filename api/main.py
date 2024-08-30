@@ -32,8 +32,8 @@ app.add_middleware(
 
 
 app.include_router(auth)
-app.include_router(sbat_router)
 app.include_router(subscribers_router)
+app.include_router(sbat_router)
 app.include_router(webhooks)
 
 

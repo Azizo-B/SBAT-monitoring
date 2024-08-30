@@ -2,9 +2,8 @@ import asyncio
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from ..db.base_repo import BaseRepository
-from ..dependencies import get_admin_user, get_repo, get_sbat_monitor
-from ..models.sbat import ExamTimeSlotRead, MonitorConfiguration, MonitorStatus, SbatRequestRead
+from ..dependencies import get_admin_user, get_sbat_monitor
+from ..models.sbat import MonitorConfiguration, MonitorStatus
 from ..services.sbat_monitor import SbatMonitor
 
 router = APIRouter(dependencies=[Depends(get_admin_user)], tags=["SBAT-monitor"])
@@ -41,13 +40,3 @@ async def stop_monitoring(sbat_monitor: SbatMonitor = Depends(get_sbat_monitor))
     except RuntimeError as re:
         raise HTTPException(409, detail=str(re)) from re
     return sbat_monitor.status()
-
-
-@router.get("/requests")
-async def get_requests(limit: int = 10, repo: BaseRepository = Depends(get_repo("mongodb"))) -> list[SbatRequestRead]:
-    return await repo.list_requests(limit)
-
-
-@router.get("/exam-time-slots")
-async def get_exam_time_slots(limit: int = 10, repo: BaseRepository = Depends(get_repo("mongodb"))) -> list[ExamTimeSlotRead]:
-    return await repo.list_time_slots(limit)

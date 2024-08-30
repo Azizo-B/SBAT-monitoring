@@ -64,7 +64,7 @@ async def get_current_user(
     except jwt.InvalidTokenError as ite:
         raise credentials_exception from ite
 
-    subscriber: SubscriberRead | None = await repo.find_subscriber_by_email(email)
+    subscriber: SubscriberRead | None = await repo.find_one("subscribers", {"email": email}, SubscriberRead)
     if not subscriber:
         raise credentials_exception
 

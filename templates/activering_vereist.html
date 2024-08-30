@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Activering van je account vereist</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+
+      h1 {
+        color: #e74c3c;
+      }
+
+      a {
+        color: #007bff;
+        text-decoration: none;
+      }
+
+      .footer {
+        margin-top: 20px;
+        font-size: 0.9em;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Activering van je account vereist</h1>
+      <p>Beste <strong>{{naam}}</strong>,</p>
+      <p>
+        We hebben gemerkt dat je je account nog niet hebt geactiveerd. Zonder
+        deze activatie zijn je voorkeuren en meldingen nog niet actief.
+      </p>
+
+      <p><strong>Waarom dit belangrijk is:</strong></p>
+      <ul>
+        <li>
+          <strong>Voorkeuren:</strong> Je hebt voorkeuren ingesteld voor
+          specifieke examencentra en rijbewijstypes, maar deze zullen pas in
+          werking treden nadat je account is geactiveerd.
+        </li>
+        <li>
+          <strong>Meldingen:</strong> Meldingen over beschikbare
+          rijexamenplekken worden pas verzonden nadat je account is geactiveerd.
+        </li>
+      </ul>
+
+      <p>
+        Om je account te activeren, klik je op de volgende link:
+        <a
+          href="https://buy.stripe.com/28oeWs5Jmd9o3Cg7ss?client_reference_id={{client_reference_id}}"
+          target="_blank"
+          >Activeer je account</a
+        >.
+      </p>
+
+      <p>
+        We raden je aan dit zo snel mogelijk te doen, zodat je geen belangrijke
+        updates mist.
+      </p>
+
+      <div class="footer">
+        Met vriendelijke groet,<br />
+        <strong>rijexamenmeldingen</strong><br />
+        E-mail:
+        <a href="mailto:rijexamenmeldingen@gmail.com"
+          >rijexamenmeldingen@gmail.com</a
+        ><br />
+        Website:
+        <a href="rijexamenmeldingen.be" target="_blank"
+          >rijexamenmeldingen.be</a
+        >
+      </div>
+    </div>
+  </body>
+</html>

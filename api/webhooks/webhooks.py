@@ -1,8 +1,11 @@
+import datetime
+
 import stripe
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from ..db.base_repo import BaseRepository
 from ..dependencies import get_repo, get_settings
+from ..models.common import ReferenceCreate, ReferenceRead
 from ..models.settings import Settings
 from ..utils import send_telegram_message
 from .stripe_handlers import (
@@ -69,3 +72,24 @@ async def telegram_webhook(
             await send_telegram_message(response, settings.telegram_bot_token, message.get("chat").get("id"))
 
     return {"status": "ok"}
+
+
+@webhooks.post("/ref-webhook")
+async def log_ref(request: Request, repo: BaseRepository = Depends(get_repo("mongodb"))) -> dict[str, str]:
+    data: dict = await request.json()
+    user_ip: str = request.client.host
+    timestamp: str = datetime.datetime.now(datetime.UTC)
+
+    await repo.create(
+        "reference_events",
+        ReferenceCreate.model_validate(
+            {
+                "ip": user_ip,
+                "body": data,
+                "headers": request.headers,
+                "timestamp": timestamp,
+            }
+        ),
+        ReferenceRead,
+    )
+    return {"status": "success"}
