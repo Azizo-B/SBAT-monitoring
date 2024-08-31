@@ -1,7 +1,7 @@
+var subscriber_id;
 document.addEventListener("DOMContentLoaded", async function () {
   const disableButton = document.getElementById("disable-subscription");
   const token = localStorage.getItem("authToken");
-  let subscriber_id;
 
   if (!token) {
     window.location.href = "/login";
@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const data = await response.json();
 
     subscriber_id = data._id;
+
 
     document.getElementById("user-name").textContent = data.name || "Onbekend";
     document.getElementById("user-email").textContent =
@@ -124,3 +125,31 @@ document.addEventListener("DOMContentLoaded", async function () {
     alert("Er is een onverwachte fout opgetreden.");
   }
 });
+
+function onTelegramAuth(user) {
+  fetch('https://api.rijexamenmeldingen.be/telegram-webhook', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ "login_widget_event": { subscriber_id: subscriber_id, user: user } }),
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok.');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Server response:', data);
+      if (data.status === 'ok') {
+        window.location.reload();
+      } else {
+        alert('Er is een onverwachte fout opgetreden.');
+      }
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+      alert('Er is een onverwachte fout opgetreden.');
+    });
+}
