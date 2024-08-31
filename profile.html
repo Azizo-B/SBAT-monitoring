@@ -88,6 +88,27 @@
       .back-arrow:hover {
         color: #007bff;
       }
+      #discord-login-button {
+        background-color: #7289da;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+      }
+
+      #discord-login-button img {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+      }
+
+      #discord-login-button:hover {
+        background-color: #5a6ea9;
+      }
     </style>
   </head>
   <body>
@@ -120,6 +141,16 @@
         <p>
           <span>Telegram Gebruikersnaam:</span>
           <span id="user-telegram"></span>
+          <button id="unlink-telegram" style="display: none">
+            Unlink Telegram
+          </button>
+        </p>
+        <p>
+          <span>Discord Gebruikersnaam:</span>
+          <span id="user-discord"></span>
+          <button id="unlink-discord" style="display: none">
+            Unlink Discord
+          </button>
         </p>
         <p>
           <span>Abonnementsstatus:</span>
@@ -138,14 +169,26 @@
           >
         </p>
         <p>
-          <script
-            async
-            src="https://telegram.org/js/telegram-widget.js?22"
-            data-telegram-login="SbatMonitoringBot"
-            data-size="medium"
-            data-onauth="onTelegramAuth(user)"
-            data-request-access="write"
-          ></script>
+          <span id="telegram-login-button">
+            <script
+              async
+              src="https://telegram.org/js/telegram-widget.js?22"
+              data-telegram-login="SbatMonitoringBot"
+              data-size="medium"
+              data-onauth="patchTelegramUser(user)"
+              data-request-access="write"
+            ></script>
+          </span>
+          <span style="display: inline-block; margin-right: 1.5rem">
+            <button id="discord-login-button">
+              <img
+                src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png"
+                alt="Discord Logo"
+                style="width: 20px; margin-right: 8px"
+              />
+              Login with Discord
+            </button>
+          </span>
         </p>
       </div>
       <div class="preferences">
@@ -179,6 +222,13 @@
           <label
             ><input type="checkbox" name="exam_center_ids" value="10" />
             Sint-Niklaas</label
+          >
+        </div>
+        <p><span>Meldingen via e-mail:</span></p>
+        <div class="checkbox-container">
+          <label
+            ><input type="checkbox" name="email_notifications" value="true" />
+            Ik wil meldingen via e-mail</label
           >
         </div>
       </div>
