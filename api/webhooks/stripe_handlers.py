@@ -1,9 +1,8 @@
-from bson import ObjectId
-
 from ..db.base_repo import BaseRepository
+from ..models.discord import DiscordSubscriptionRoles
 from ..models.settings import Settings
 from ..models.subscriber import SubscriberRead
-from ..utils import create_single_use_invite_link, send_email
+from ..utils import is_user_in_guild, remove_role_from_user, send_email
 
 
 async def handle_invoice_payment_failed(repo: BaseRepository, settings: Settings, invoice: dict) -> None:
@@ -32,6 +31,11 @@ async def handle_subscription_deleted(repo: BaseRepository, settings: Settings, 
     subscriber: SubscriberRead | None = await repo.update_one(
         "subscribers", {"stripe_customer_id": cus}, {"is_subscription_active": False}, SubscriberRead
     )
+    discord_user_id = subscriber.discord_user.get("id")
+    if is_user_in_guild(settings.discord_guild_id, discord_user_id, settings.discord_bot_token):
+        await remove_role_from_user(
+            settings.discord_guild_id, discord_user_id, DiscordSubscriptionRoles.ACTIVE.value, settings.discord_bot_token
+        )
     if subscriber:
         send_email(
             "Bevestiging van Annulering van je Abonnement.",
@@ -47,11 +51,7 @@ async def handle_subscription_deleted(repo: BaseRepository, settings: Settings, 
 
 
 async def handle_checkout_session_completed(repo: BaseRepository, settings: Settings, session: dict) -> None:
-    sub: SubscriberRead | None = await repo.find_one("subscribers", {"_id": ObjectId(session.get("client_reference_id"))}, SubscriberRead)
-    telegram_link: str | None = await create_single_use_invite_link(
-        settings.telegram_chat_id, settings.telegram_bot_token, name=sub.name if sub else None
-    )
-    subscriber: SubscriberRead = await repo.process_checkout_session(session, telegram_link)
+    subscriber: SubscriberRead = await repo.process_checkout_session(session)
     send_email(
         "Betaling geslaagd! Uw voorkeuren zijn ontvangen.",
         [subscriber.email],
@@ -62,5 +62,6 @@ async def handle_checkout_session_completed(repo: BaseRepository, settings: Sett
         is_html=True,
         html_template="confirmation_email.html",
         naam=subscriber.name,
-        telegram_link=telegram_link,
+        telegram_link="https://t.me/+irHB91aMk1Q0MGNk",
+        discord_link="https://discord.gg/fhA5c4tTww",
     )

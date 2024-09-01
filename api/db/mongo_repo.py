@@ -73,10 +73,11 @@ class MongoRepository(BaseRepository):
         if existing_subscriber:
             raise Exception("Email already subscribed")  # pylint: disable=broad-exception-raised
 
+        hashed_password: str = pwd_context.hash(subscriber.password)
         result: InsertOneResult = await self.db["subscribers"].insert_one(
-            {**subscriber.model_dump(exclude="password"), "hashed_password": pwd_context.hash(subscriber.password)}
+            {**subscriber.model_dump(exclude="password"), "hashed_password": hashed_password}
         )
-        return SubscriberRead(_id=result.inserted_id, **subscriber.model_dump())
+        return SubscriberRead.model_validate({"_id": result.inserted_id, "hashed_password": hashed_password, **subscriber.model_dump()})
 
     async def verify_subscriber_credentials(self, username: str, password: str) -> SubscriberRead | None:
         subscriber: dict | None = await self.db["subscribers"].find_one({"email": username.lower()})
@@ -89,10 +90,16 @@ class MongoRepository(BaseRepository):
         if subscriber:
             return SubscriberRead.model_validate(subscriber)
 
+    async def find_subscriber_by_discord_user_id(self, discord_user_id: int) -> SubscriberRead | None:
+        subscriber: dict | None = await self.db["subscribers"].find_one({"discord_user.id": discord_user_id})
+        if subscriber:
+            return SubscriberRead.model_validate(subscriber)
+
     async def find_all_subscribed_emails(self, exam_center_id: int, license_type: str) -> set[str]:
         cursor: AsyncIOMotorCursor = self.db["subscribers"].find(
             {
                 "is_subscription_active": True,
+                "wants_emails": True,
                 "monitoring_preferences.exam_center_ids": exam_center_id,
                 "monitoring_preferences.license_types": license_type,
             },
@@ -118,7 +125,7 @@ class MongoRepository(BaseRepository):
         )
         return SubscriberRead.model_validate(subscriber) if subscriber else None
 
-    async def process_checkout_session(self, session: dict, telegram_link: str) -> SubscriberRead:
+    async def process_checkout_session(self, session: dict) -> SubscriberRead:
         sub_id: str = session.get("subscription")
         amount_total: int = session.get("amount_total")
         client_reference_id: str = session.get("client_reference_id")
@@ -145,7 +152,6 @@ class MongoRepository(BaseRepository):
                         "extra_details": customer_details,
                         "stripe_customer_id": stripe_customer_id,
                         "is_subscription_active": True,
-                        "telegram_link": valid.telegram_link if valid.telegram_link else telegram_link,
                     }
                 },
                 return_document=True,
@@ -156,7 +162,6 @@ class MongoRepository(BaseRepository):
             stripe_ids=[sub_id],
             stripe_customer_id=stripe_customer_id,
             is_subscription_active=True,
-            telegram_link=telegram_link,
             name=name,
             email=email,
             phone=phone,
@@ -176,3 +181,8 @@ class MongoRepository(BaseRepository):
         upt: dict | None = await self.db["telegram_events"].find_one({"update_id": telegram_event.get("update_id")})
         if not upt:
             await self.db["telegram_events"].insert_one(telegram_event)
+
+    async def create_discord_event(self, discord_event: dict) -> None:
+        intr: dict | None = await self.db["discord_events"].find_one({"update_id": discord_event.get("token")})
+        if not intr:
+            await self.db["discord_events"].insert_one(discord_event)

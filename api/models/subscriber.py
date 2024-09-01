@@ -7,19 +7,20 @@ from .sbat import MonitorPreferences
 
 
 class SubscriberBase(BaseModel):
+    account_created_on: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    stripe_customer_id: str | None = None
     name: str
     email: EmailStr
-    stripe_customer_id: str | None = None
-    stripe_ids: list[str] = []
     phone: str | None = None
-    telegram_link: str | None = None
-    telegram_user: dict = {}
-    extra_details: dict = {}
-    total_spent: int = 0
     role: str = "user"
+    total_spent: int = 0
+    wants_emails: bool = False
     is_subscription_active: bool = False
+    telegram_user: dict = Field(default_factory=dict)
+    discord_user: dict = Field(default_factory=dict)
+    stripe_ids: list[str] = Field(default_factory=list)
+    extra_details: dict = Field(default_factory=dict)
     monitoring_preferences: MonitorPreferences = MonitorPreferences()
-    account_created_on: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class SubscriberCreate(SubscriberBase):

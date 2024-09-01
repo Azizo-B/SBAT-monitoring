@@ -7,6 +7,10 @@ from pydantic import BaseModel, BeforeValidator, Field
 PyObjectId = Annotated[str, BeforeValidator(lambda v: str(ObjectId(v)))]
 
 
+class BasicApiResponse(BaseModel):
+    detail: str
+
+
 class ReferenceBase(BaseModel):
     ip: str
     body: dict

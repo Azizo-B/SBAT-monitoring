@@ -43,6 +43,96 @@ async def retry_request(request_function: Callable, max_retries: int = 3, max_wa
     return None
 
 
+async def assign_role_to_user(guild_id: str, user_id: str, role_id: str, bot_token: str):
+    url: str = f"https://discord.com/api/v10/guilds/{guild_id}/members/{user_id}/roles/{role_id}"
+    headers: dict[str, str] = {"Authorization": f"Bot {bot_token}"}
+
+    async def request_function():
+        async with httpx.AsyncClient() as client:
+            response: httpx.Response = await client.put(url, headers=headers)
+            response.raise_for_status()
+
+    return await retry_request(request_function)
+
+
+async def remove_role_from_user(guild_id: str, user_id: str, role_id: str, bot_token: str):
+    url: str = f"https://discord.com/api/v10/guilds/{guild_id}/members/{user_id}/roles/{role_id}"
+    headers: dict[str, str] = {"Authorization": f"Bot {bot_token}"}
+
+    async def request_function():
+        async with httpx.AsyncClient() as client:
+            response: httpx.Response = await client.delete(url, headers=headers)
+            response.raise_for_status()
+
+    return await retry_request(request_function)
+
+
+async def get_role_id_by_name(bot_token: str, guild_id: str, role_name: str) -> str:
+    """Asynchronously fetches the role ID by role name from a Discord guild (server)."""
+    url: str = f"https://discord.com/api/v10/guilds/{guild_id}/roles"
+    headers: dict[str, str] = {"Authorization": f"Bot {bot_token}"}
+
+    async with httpx.AsyncClient() as client:
+        response: httpx.Response = await client.get(url, headers=headers)
+
+    if response.status_code == 200:
+        roles = response.json()
+        for role in roles:
+            if role["name"] == role_name:
+                return role["id"]
+
+
+async def get_user_roles_in_guild(guild_id: str, user_id: int, bot_token: str) -> list[str]:
+    url: str = f"https://discord.com/api/v10/guilds/{guild_id}/members/{user_id}"
+    headers: dict[str, str] = {"Authorization": f"Bot {bot_token}", "Content-Type": "application/json"}
+    async with httpx.AsyncClient() as client:
+        response: httpx.Response = await client.get(url, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        return data.get("roles", [])
+
+
+async def get_all_roles_in_guild(guild_id: str, bot_token: str) -> list[dict]:
+    url: str = f"https://discord.com/api/v10/guilds/{guild_id}/roles"
+    headers: dict[str, str] = {"Authorization": f"Bot {bot_token}", "Content-Type": "application/json"}
+    async with httpx.AsyncClient() as client:
+        response: httpx.Response = await client.get(url, headers=headers)
+        response.raise_for_status()
+        return response.json()
+
+
+async def send_discord_message(bot_token: str, channel_id: str, message: str):
+    """Asynchronously sends a message to a Discord channel."""
+    url: str = f"https://discord.com/api/v10/channels/{channel_id}/messages"
+    headers: dict[str, str] = {"Authorization": f"Bot {bot_token}", "Content-Type": "application/json"}
+    payload: dict = {"content": message, "tts": False}
+
+    async with httpx.AsyncClient() as client:
+        response: httpx.Response = await client.post(url, headers=headers, json=payload)
+
+    if response.status_code != 200:
+        print(f"Failed to send message: {response.status_code} - {response.text}")
+
+
+async def send_discord_message_with_role_mention(bot_token: str, guild_id: str, channel_id: str, role: str, message: str):
+    """sends a message in a specified channel mentioning the role."""
+    role_id: str = await get_role_id_by_name(bot_token, guild_id, role)
+    message: str = f"<@&{role_id}>\n {message}"
+    await send_discord_message(bot_token, channel_id, message)
+
+
+async def is_user_in_guild(guild_id: str, user_id: str, bot_token: str) -> bool:
+    url: str = f"https://discord.com/api/v10/guilds/{guild_id}/members/{user_id}"
+    headers: dict[str, str] = {"Authorization": f"Bot {bot_token}"}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=headers)
+        if response.status_code == 200:
+            return True
+        elif response.status_code == 404:
+            return False
+
+
 async def send_telegram_message(message: str, bot_token: str, chat_id: str) -> None:
     url: str = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     payload: dict[str, str] = {"chat_id": chat_id, "text": message}
@@ -51,7 +141,6 @@ async def send_telegram_message(message: str, bot_token: str, chat_id: str) -> N
         async with httpx.AsyncClient() as client:
             response: httpx.Response = await client.post(url, data=payload, timeout=10)
             response.raise_for_status()
-            print(f"Message sent to telegram chat: {chat_id} \nResponse: {response.status_code}")
 
     await retry_request(send_request)
 

@@ -139,6 +139,23 @@ class BaseRepository(ABC):
         """
 
     @abstractmethod
+    async def find_subscriber_by_discord_user_id(self, discord_user_id: int) -> SubscriberRead | None:
+        """
+        Find a subscriber by their discord user ID.
+
+        This method retrieves a subscriber from the database using their discord user ID.
+
+        Args:
+            discord_user_id (int): The discord user ID associated with the subscriber.
+
+        Returns:
+            SubscriberRead | None: An instance of `SubscriberRead` if found, otherwise `None`.
+
+        Raises:
+            NotImplementedError: If the method is not implemented by the subclass.
+        """
+
+    @abstractmethod
     async def find_all_subscribed_emails(self, exam_center_id: int, license_type: str) -> set[str]:
         """
         Find all emails of subscribers who are monitoring a specific exam center and license type.
@@ -191,7 +208,7 @@ class BaseRepository(ABC):
         """
 
     @abstractmethod
-    async def process_checkout_session(self, session: dict, telegram_link: str) -> SubscriberRead:
+    async def process_checkout_session(self, session: dict) -> SubscriberRead:
         """
         Process a Stripe checkout session and update the corresponding subscriber's information.
 
@@ -230,6 +247,22 @@ class BaseRepository(ABC):
 
         Args:
             telegram_event (dict): The Telegram event.
+
+        Raises:
+            NotImplementedError: If the method is not implemented by the subclass.
+        """
+
+    @abstractmethod
+    async def create_discord_event(self, discord_event: dict) -> None:
+        """
+        Process and store a discord event.
+
+        This method handles incoming discord events (e.g., messages or updates) and updates
+        the database accordingly. The `discord_event` parameter contains the event
+        sent by discord.
+
+        Args:
+            discord_event (dict): The discord event.
 
         Raises:
             NotImplementedError: If the method is not implemented by the subclass.

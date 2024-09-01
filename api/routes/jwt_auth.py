@@ -16,6 +16,7 @@ async def subscribe(subscriber: SubscriberCreate, repo: BaseRepository = Depends
         await repo.create_subscriber(subscriber)
         return {"message": "Subscribed successfully!"}
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=400, detail="Email already subscribed") from e
 
 

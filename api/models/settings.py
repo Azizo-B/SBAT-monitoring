@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     telegram_bot_token: str | None = None
     telegram_chat_id: str | None = None
 
+    discord_bot_token: str | None
+    discord_guild_id: str | None
+    discord_channel_id: str | None = None
+    discord_public_key: str | None = None
+
     sender_email: str | None = None
     sender_password: str | None = None
     smtp_server: str | None = None

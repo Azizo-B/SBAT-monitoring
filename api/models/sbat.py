@@ -22,8 +22,8 @@ class MonitorStatus(BaseModel):
 
 
 class MonitorPreferences(BaseModel):
-    license_types: list[Literal["B", "AM"]] = ["B"]
-    exam_center_ids: list[int] = [1]
+    license_types: list[Literal["B", "AM"]] = Field(default_factory=lambda: ["B"])
+    exam_center_ids: list[int] = Field(default_factory=lambda: [1])
 
     @field_validator("exam_center_ids")
     def validate_exam_center_ids(cls, value):  # pylint: disable=no-self-argument

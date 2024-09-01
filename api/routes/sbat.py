@@ -20,7 +20,7 @@ async def start_monitoring(config: MonitorConfiguration, sbat_monitor: SbatMonit
     return sbat_monitor.status()
 
 
-@router.post("/monitor-config")
+@router.patch("/monitor-config")
 async def update_monitoring_configurations(
     config: MonitorConfiguration, sbat_monitor: SbatMonitor = Depends(get_sbat_monitor)
 ) -> MonitorStatus:
@@ -33,7 +33,7 @@ async def get_monitoring_status(sbat_monitor: SbatMonitor = Depends(get_sbat_mon
     return sbat_monitor.status()
 
 
-@router.get("/shutdown")
+@router.delete("/shutdown")
 async def stop_monitoring(sbat_monitor: SbatMonitor = Depends(get_sbat_monitor)) -> MonitorStatus:
     try:
         await sbat_monitor.stop()

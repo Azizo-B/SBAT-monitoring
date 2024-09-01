@@ -20,7 +20,7 @@ from ..models.sbat import (
     ServerResponseTimeRead,
 )
 from ..models.settings import Settings
-from ..utils import send_email, send_telegram_message_to_all
+from ..utils import send_discord_message_with_role_mention, send_email, send_telegram_message_to_all
 
 
 class SbatMonitor:
@@ -213,7 +213,6 @@ class SbatMonitor:
         exam_center_name: str = EXAM_CENTER_MAP[exam_center_id]
         if response.status_code == 200:
             data: dict = response.json()
-            print(data)
             await self.notify_users_and_update_db(data, exam_center_id, exam_center_name, license_type)
 
         else:
@@ -280,6 +279,13 @@ class SbatMonitor:
                 self.settings.smtp_server,
                 self.settings.smtp_port,
                 message=message,
+            )
+            await send_discord_message_with_role_mention(
+                self.settings.discord_bot_token,
+                self.settings.discord_guild_id,
+                self.settings.discord_channel_id,
+                f"{exam_center_name} - {license_type}",
+                message,
             )
             await send_telegram_message_to_all(message, self.settings.telegram_bot_token, telegram_recipients)
 
