@@ -132,6 +132,7 @@ function paintPage(data) {
 
   if (subscriptionStatus === "Actief") {
     disableButton.style.display = "inline-block";
+    document.getElementById("submit-preferences").style.display = ""
     document.getElementById("activate-subscription").disabled = true
   }
 }
