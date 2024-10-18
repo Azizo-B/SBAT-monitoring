@@ -1,11 +1,21 @@
 <!DOCTYPE html>
-<html lang="zxx">
+<html lang="nl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta
+      name="description"
+      content="Blijf op de hoogte van beschikbare rijexamenplekken in Sint-Denijs-Westrem, Eeklo, Brakel, Erembodegem en Sint-Niklaas via e-mail, Telegram of Discord met onze meldingsservice."
+    />
+    <meta
+      name="keywords"
+      content="sbat, rijbewijs, rijbewijs B, praktijk examen, praktijkexamen, rijbewijs B praktijkexamen, rijexamen, rijbewijs meldingen, rijbewijs e-mail meldingen, rijbewijs Telegram meldingen, rijbewijs Discord meldingen, rijexamens, beschikbaarheid, Sint-Denijs-Westrem, Eeklo, Brakel, Erembodegem, Sint-Niklaas, autokeuring, theorie examen B"
+    />
+    <link rel="canonical" href="https://rijexamenmeldingen.be" />
+
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Rijexamenmeldingen</title>
+    <link rel="icon" href="/assets/img/logo.svg" type="image/svg+xml" />
     <link rel="icon" href="assets/img/favicon.jpg" sizes="20x20" type="image/jpg" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
@@ -13,6 +23,34 @@
     <link rel="stylesheet" href="assets/css/vendor.css" />
     <link rel="stylesheet" href="assets/css/style.css" />
     <link rel="stylesheet" href="assets/css/responsive.css" />
+
+    <!-- Google -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C6KMPT20YQ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-C6KMPT20YQ");
+    </script>
+    <!-- Hotjar Tracking Code for https://rijexamenmeldingen.be -->
+    <script>
+      (function (h, o, t, j, a, r) {
+        h.hj =
+          h.hj ||
+          function () {
+            (h.hj.q = h.hj.q || []).push(arguments);
+          };
+        h._hjSettings = { hjid: 5114847, hjsv: 6 };
+        a = o.getElementsByTagName("head")[0];
+        r = o.createElement("script");
+        r.async = 1;
+        r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
+        a.appendChild(r);
+      })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
+    </script>
   </head>
   <body>
     <!-- preloader area start -->
@@ -79,7 +117,7 @@
             <a href="index.html"
               ><img style="border-radius: 50px" src="assets/img/logo.png" width="50px" height="50px" alt="img"
             /></a>
-            <h4>Rijexamenmeldingen</h4>
+            <h4 style="display: inline">Rijexamenmeldingen</h4>
           </div>
 
           <div class="collapse navbar-collapse" id="edumint_main_menu">
@@ -94,10 +132,13 @@
                 <a href="contact.html">Contact Us</a>
               </li>
               <li>
-                <a href="login.html">Login</a>
+                <a href="login.html">Sign In</a>
               </li>
               <li>
-                <a href="register.html">Register</a>
+                <a href="register.html">Sign Up</a>
+              </li>
+              <li>
+                <a href="profile.html">Profile</a>
               </li>
             </ul>
           </div>
@@ -120,7 +161,10 @@
                 Blijf op de hoogte van de laatste beschikbare examenplekken via e-mail, Telegram of Discord.
               </p>
               <div class="btn-wrap">
-                <a class="btn btn-base b-animate-4 mr-3" href="" style="background-color: white; color: #333"
+                <a
+                  class="btn btn-base b-animate-4 mr-3"
+                  href="/register.html"
+                  style="background-color: white; color: #333"
                   >Word Lid</a
                 >
               </div>
@@ -237,7 +281,7 @@
                   <h4 class="small-title">Wij Helpen U Bij Het Boeken Van Uw Rijexamen</h4>
                   <!-- Replace the stock image with an icon -->
                   <!--<h4 class="phone"><i class="fas fa-phone-alt"></i> +44 - 0184 5698 98</h4>-->
-                  <a class="btn btn-base" href="">Word Lid</a>
+                  <a class="btn btn-base" href="/register.html">Word Lid</a>
                 </div>
               </div>
             </div>
@@ -427,10 +471,12 @@
           <div class="col-xl-12 col-lg-12 col-md-12">
             <div class="section-title text-center">
               <h5 class="sub-title double-line">Prijs</h5>
-              <h2 class="title">Ontvang realtime updates en mis nooit meer een examenplek voor maar €1 per maand..</h2>
+              <h2 class="title">
+                Ontvang realtime updates en mis nooit meer een examenplek voor maar €2,99 per maand.
+              </h2>
               <h5 class="sub-title double-line">Introductieaanbieding!</h5>
               <div class="btn-wrap">
-                <a class="btn btn-base b-animate-4 mr-3" href="">Word Lid</a>
+                <a class="btn btn-base b-animate-4 mr-3" href="/register.html">Word Lid</a>
               </div>
             </div>
           </div>
@@ -453,8 +499,8 @@
             <div class="single-testimonial-inner">
               <h2 class="title double-line">Stap 1: Word Lid</h2>
               <p>
-                <a href="/signup">Registreer je hier</a> om een account aan te maken. Dit is de eerste stap om toegang
-                te krijgen tot onze meldingsservice.
+                <a href="/register.html" , style="text-decoration: underline">Maak een account aan</a>. Dit is de eerste
+                stap om toegang te krijgen tot onze meldingsservice.
               </p>
             </div>
           </div>
@@ -533,7 +579,7 @@
             <div class="widget widget_about pr-xl-4">
               <div class="thumb">
                 <img style="border-radius: 50px" src="assets/img/logo.png" width="50px" height="50px" alt="img" />
-                <h4 style="color: white">Rijexamenmeldingen</h4>
+                <h4 style="color: white; display: inline">Rijexamenmeldingen</h4>
               </div>
               <div class="details">
                 <p>
@@ -552,6 +598,9 @@
                 <li><a href="index.html">Home</a></li>
                 <li><a href="about.html">About</a></li>
                 <li><a href="contact.html">Contact Us</a></li>
+                <li><a href="register.html">Sign Up</a></li>
+                <li><a href="login.html">Sign In</a></li>
+                <li><a href="profile.html">Profile</a></li>
               </ul>
             </div>
           </div>
@@ -618,5 +667,6 @@
     <script src="assets/js/vendor.js"></script>
     <!-- main js  -->
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/nav.js"></script>
   </body>
 </html>

@@ -143,62 +143,7 @@
             },
         });
 
-        /*------------------------------------------------
-                blog-slider
-            ------------------------------------------------*/
-        $(".blog-slider").owlCarousel({
-            loop: true,
-            margin: 30,
-            nav: false,
-            dots: false,
-            smartSpeed: 1500,
-            items: 1,
-            navText: ['<i class="fa fa-angle-left"></i>', '<i class="fa fa-angle-right"></i>'],
-        });
 
-        /*------------------------------------------------
-                testimonial-slider
-            ------------------------------------------------*/
-        $(".testimonial-slider").owlCarousel({
-            loop: true,
-            margin: 30,
-            nav: false,
-            dots: true,
-            smartSpeed: 1500,
-            responsive: {
-                0: {
-                    items: 1,
-                },
-                600: {
-                    items: 1,
-                },
-                768: {
-                    items: 2,
-                },
-            },
-        });
-
-        /*------------------------------------------------
-                testimonial-slider
-            ------------------------------------------------*/
-        $(".testimonial-slider-2").owlCarousel({
-            loop: true,
-            margin: 30,
-            nav: false,
-            dots: true,
-            smartSpeed: 1500,
-            responsive: {
-                0: {
-                    items: 1,
-                },
-                600: {
-                    items: 1,
-                },
-                768: {
-                    items: 1,
-                },
-            },
-        });
 
         /*------------------------------------------------
                 client-slider
@@ -222,68 +167,6 @@
             },
         });
 
-        /*------------------------------------------------
-                Magnific JS
-            ------------------------------------------------*/
-        $(".video-play-btn").magnificPopup({
-            type: "iframe",
-            removalDelay: 260,
-            mainClass: "mfp-zoom-in",
-        });
-        $.extend(true, $.magnificPopup.defaults, {
-            iframe: {
-                patterns: {
-                    youtube: {
-                        index: "youtube.com/",
-                        id: "v=",
-                        src: "https://www.youtube.com/embed/Wimkqo8gDZ0",
-                    },
-                },
-            },
-        });
-
-        $(".without-caption").magnificPopup({
-            type: "image",
-            closeOnContentClick: true,
-            closeBtnInside: false,
-            mainClass: "mfp-no-margins mfp-with-zoom", // class to remove default margin from left and right side
-            image: {
-                verticalFit: true,
-            },
-            zoom: {
-                enabled: true,
-                duration: 300, // don't foget to change the duration also in CSS
-            },
-        });
-
-        $(".with-caption").magnificPopup({
-            type: "image",
-            closeOnContentClick: true,
-            closeBtnInside: false,
-            mainClass: "mfp-with-zoom mfp-img-mobile",
-            image: {
-                verticalFit: true,
-                titleSrc: function (item) {
-                    return (
-                        item.el.attr("title") +
-                        ' &middot; <a class="image-source-link" href="' +
-                        item.el.attr("data-source") +
-                        '" target="_blank">image source</a>'
-                    );
-                },
-            },
-            zoom: {
-                enabled: true,
-            },
-        });
-
-        /* -----------------------------------------
-                fact counter
-            ----------------------------------------- */
-        $(".counter").counterUp({
-            delay: 15,
-            time: 2000,
-        });
 
         /*----------------------------------------
                back to top
