@@ -1,39 +1,28 @@
 <!DOCTYPE html>
 <html lang="nl">
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    name="description"
+    content="Blijf op de hoogte van beschikbare rijexamenplekken in Sint-Denijs-Westrem, Eeklo, Brakel, Erembodegem en Sint-Niklaas via e-mail, Telegram of Discord met onze meldingsservice."
   />
-  <meta name="robots" content="noindex" />
-  <title>Profiel - Rijexamenmeldingen</title>
+  <meta
+    name="keywords"
+    content="sbat, rijbewijs, rijbewijs B, praktijk examen, praktijkexamen, rijbewijs B praktijkexamen, rijexamen, rijbewijs meldingen, rijbewijs e-mail meldingen, rijbewijs Telegram meldingen, rijbewijs Discord meldingen, rijexamens, beschikbaarheid, Sint-Denijs-Westrem, Eeklo, Brakel, Erembodegem, Sint-Niklaas, autokeuring, theorie examen B"
+  />
   <link rel="canonical" href="https://rijexamenmeldingen.be/profile" />
 
-  <meta
-    property="og:title"
-    content="Rijexamenmeldingen - Ontvang Meldingen voor Beschikbare Examens"
-  />
-  <meta
-    property="og:description"
-    content="Blijf op de hoogte van beschikbare rijexamenplekken via e-mail of Telegram."
-  />
-  <meta
-    property="og:image"
-    content="https://rijexamenmeldingen.be/assets/logo.png"
-  />
-  <meta property="og:url" content="https://rijexamenmeldingen.be" />
-  <meta property="og:type" content="website" />
-  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml" />
-  <link rel="icon" href="/assets/logo.png" />
-  <link rel="icon" href="/assets/logo.jpeg" />
-  <link rel="icon" href="/assets/logo_cropped.png" />
-  <link rel="stylesheet" href="/assets/styles/profile.css" />
-  <link rel="stylesheet" href="/assets/styles/scrollbar.css" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Rijexamenmeldingen</title>
+  <link rel="icon" href="/assets/img/logo.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/img/favicon.jpg" sizes="20x20" type="image/jpg" />
 
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-  />
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="assets/css/vendor.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <!-- Hotjar Tracking Code for https://rijexamenmeldingen.be -->
   <script>
     (function (h, o, t, j, a, r) {
@@ -52,10 +41,7 @@
   </script>
   <head>
     <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-C6KMPT20YQ"
-    ></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C6KMPT20YQ"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -75,7 +61,7 @@
       }
       .back-arrow {
         font-size: 20px;
-        color: white;
+        color: white !important ;
         text-decoration: none;
         display: flex;
         align-items: center;
@@ -109,23 +95,105 @@
       #discord-login-button:hover {
         background-color: #5a6ea9;
       }
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #333;
+      }
+
+      .profile-container {
+        width: 100%;
+        max-width: 600px;
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+      }
+
+      .profile-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .profile-container .profile-info {
+        margin-bottom: 20px;
+      }
+
+      .profile-container .profile-info p {
+        margin: 10px 0;
+        font-size: 1rem;
+      }
+
+      .profile-container .profile-info p span {
+        font-weight: bold;
+      }
+
+      .profile-container .preferences {
+        margin: 20px 0;
+      }
+
+      .profile-container .preferences label {
+        margin-bottom: 10px;
+      }
+
+      .checkbox-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .profile-container button {
+        padding: 10px;
+        background-color: #ff5733;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+        flex: 1;
+        text-align: center;
+      }
+
+      .profile-container button:hover {
+        background-color: #e74c3c;
+      }
+
+      .button-group {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .button-group button {
+        margin-right: 10px;
+      }
+
+      .button-group button:last-child {
+        margin-right: 0;
+      }
+
+      .profile-container button:disabled {
+        background-color: #d3d3d3;
+        cursor: not-allowed;
+      }
+
+      .profile-container button:disabled:hover {
+        background-color: #d3d3d3;
+      }
     </style>
   </head>
   <body>
     <div class="top-buttons">
       <a href="/" class="back-arrow"
-        ><i
-          style="margin-right: 8px; padding-left: 3px"
-          class="fas fa-arrow-left"
-        ></i>
-        Terug</a
+        ><i style="margin-right: 8px; padding-left: 3px" class="fas fa-arrow-left"></i> Terug</a
       >
       <a id="sign-out" class="back-arrow"
-        >Afmelden
-        <i
-          style="margin-left: 8px; padding-right: 3px"
-          class="fa fa-sign-out"
-        ></i
+        >Afmelden <i style="margin-left: 8px; padding-right: 3px" class="fa fa-sign-out"></i
       ></a>
     </div>
 
@@ -141,16 +209,12 @@
         <p>
           <span>Telegram Gebruikersnaam:</span>
           <span id="user-telegram"></span>
-          <button id="unlink-telegram" style="display: none">
-            Unlink Telegram
-          </button>
+          <button id="unlink-telegram" style="display: none">Unlink Telegram</button>
         </p>
         <p>
           <span>Discord Gebruikersnaam:</span>
           <span id="user-discord"></span>
-          <button id="unlink-discord" style="display: none">
-            Unlink Discord
-          </button>
+          <button id="unlink-discord" style="display: none">Unlink Discord</button>
         </p>
         <p>
           <span>Abonnementsstatus:</span>
@@ -194,52 +258,28 @@
       <div class="preferences">
         <p><span>Rijbewijzen:</span></p>
         <div class="checkbox-container">
-          <label
-            ><input type="checkbox" name="license_types" value="B" /> B</label
-          >
-          <label
-            ><input type="checkbox" name="license_types" value="AM" /> AM</label
-          >
+          <label><input type="checkbox" name="license_types" value="B" /> B</label>
+          <label><input type="checkbox" name="license_types" value="AM" /> AM</label>
         </div>
         <p><span>Examencentra:</span></p>
         <div class="checkbox-container">
-          <label
-            ><input type="checkbox" name="exam_center_ids" value="1" />
-            Sint-Denijs-Westrem</label
-          >
-          <label
-            ><input type="checkbox" name="exam_center_ids" value="7" />
-            Brakel</label
-          >
-          <label
-            ><input type="checkbox" name="exam_center_ids" value="8" />
-            Eeklo</label
-          >
-          <label
-            ><input type="checkbox" name="exam_center_ids" value="9" />
-            Erembodegem</label
-          >
-          <label
-            ><input type="checkbox" name="exam_center_ids" value="10" />
-            Sint-Niklaas</label
-          >
+          <label><input type="checkbox" name="exam_center_ids" value="1" /> Sint-Denijs-Westrem</label>
+          <label><input type="checkbox" name="exam_center_ids" value="7" /> Brakel</label>
+          <label><input type="checkbox" name="exam_center_ids" value="8" /> Eeklo</label>
+          <label><input type="checkbox" name="exam_center_ids" value="9" /> Erembodegem</label>
+          <label><input type="checkbox" name="exam_center_ids" value="10" /> Sint-Niklaas</label>
         </div>
         <p><span>Meldingen via e-mail:</span></p>
         <div class="checkbox-container">
-          <label
-            ><input type="checkbox" name="email_notifications" value="true" />
-            Ik wil meldingen via e-mail</label
-          >
+          <label><input type="checkbox" name="email_notifications" value="true" /> Ik wil meldingen via e-mail</label>
         </div>
       </div>
       <div class="button-group">
-        <button style="display: none" id="submit-preferences">
-          Voorkeuren Opslaan
-        </button>
-        <button id="activate-subscription">Activeer Abonnement (€1)</button>
+        <button style="display: none" id="submit-preferences">Voorkeuren Opslaan</button>
+        <button id="activate-subscription">Activeer Abonnement</button>
       </div>
     </div>
 
-    <script src="/assets/scripts/profile.js"></script>
+    <script src="/assets/js/profile.js"></script>
   </body>
 </html>

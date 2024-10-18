@@ -1,0 +1,278 @@
+/*--------------------------------------------------
+    ## All responsive style
+---------------------------------------------------*/
+@media all and (min-width: 1600px) {
+	.back-to-top {
+	    right: 70px;
+	    bottom: 50px;
+	}
+	.banner-area-1 {
+	    padding: 345px 0 260px 0;
+	}
+	.banner-area-2 {
+		padding: 350px 0 210px 0;
+	}
+}
+@media (min-width: 992px) and (max-width: 1199px) {
+	.single-intro-inner .details h4 {
+		font-size: 18px;
+	}
+}
+@media all and (max-width: 1199px) {
+	.read-more-text {
+	    font-size: 15px;
+	}
+	.about-thumb-wrap.about-left-thumb {
+	    padding-left: 30px;
+	    margin-right: 0;
+	    padding-bottom: 80px;
+	}
+	.single-course-inner .details-inner .course-author img {
+	    height: 28px;
+	    width: 28px;
+	    margin-right: 1px;
+	}
+	.single-course-inner .details-inner .course-author  {
+		font-size: 13px;
+	}
+	.counter-list-inner .media-left {
+	    margin-right: 10px;
+	}
+	.counter-list-inner {
+	    padding: 15px;
+	}
+	.counter-list-inner .media-body p {
+	    font-size: 15px;
+	}
+	.about-thumb-wrap.about-right-thumb {
+	    padding-right: 30px;
+	    padding-left: 40px;
+	}
+	.single-course-inner .details-inner {
+	    position: relative;
+	    padding: 25px 20px;
+	}
+	.navbar-area.style-three .nav-right-part {
+		margin-left: 35px;
+	}
+	.navbar-area.style-three .navbar-area .nav-container {
+		padding: 22px 15px;
+	}
+	.about-thumb-wrap.about-left-thumb .img-3 {
+		right: -35px;
+	}
+	.navbar-area.style-three .nav-right-part:after {
+		height: 106px;
+	}
+	.banner-area-4 .banner-inner {
+		padding: 90px 0 120px;
+	}
+	.banner-area-4 .thumb {
+		margin-right: -252px;
+	}
+}
+@media all and (max-width: 991px) {
+	.mg-top--82 {
+		margin-top: 120px;
+	}
+	.td-sidebar {
+		margin-top: 70px;
+	}
+	.navbar {
+		padding: 0;
+	}
+	.banner-area-1 {
+	    padding: 220px 0 90px 0;
+	}
+	.navbar-area .nav-container .navbar-collapse .navbar-nav {
+	    padding-left: 0;
+	}
+	.counter-area-bg {
+	    padding: 30px 0 0 0;
+	}
+	.single-testimonial-inner {
+	    padding: 30px 30px;
+	}
+	.single-testimonial-inner p {
+	    font-size: 16px;
+	}
+	.single-testimonial-inner .media {
+	    margin-top: 16px;
+	}
+	.single-blog-inner .details {
+	    padding: 23px 25px 30px 25px;
+	}
+	.single-blog-inner .thumb .date {
+		left: 25px;
+	}
+	.td-search-popup.active .search-form {
+	    width: 60%;
+	}
+	.banner-area {
+	    background-position: initial;
+	}
+	.navbar-area .nav-container .navbar-collapse .navbar-nav li.menu-item-has-children {
+	    padding-right: 0;
+	}
+	.navbar-area.style-three .nav-right-part:after {
+		height: 97px;
+	}
+	.navbar-area.style-three .nav-right-part a {
+		color: #fff;
+	}
+	.navbar-area.style-three .toggle-btn .icon-left:after,
+	.navbar-area.style-three .toggle-btn .icon-right:after,
+	.navbar-area.style-three .toggle-btn .icon-left:before,
+	.navbar-area.style-three .toggle-btn .icon-right:before,
+	.navbar-area.style-three .toggle-btn .icon-right,
+	.navbar-area.style-three .toggle-btn .icon-left {
+		background: #fff;
+	}
+	.navbar-area.style-three .toggle-btn.open .icon-right,
+	.navbar-area.style-three .toggle-btn.open .icon-left {
+		background: transparent;
+	}
+	.navbar-area.style-three .navbar-collapse {
+		background: #043381;
+	}
+	.navbar-area.style-three .nav-container .navbar-collapse {
+		margin-top: 22px;
+		padding: 0 20px;
+		border-top: 1px solid rgba(255, 255, 255, 0.2);
+	}
+	.banner-area-4 .thumb {
+		margin: 0;
+	}
+	.navbar-area.style-four .toggle-btn .icon-left:after,
+	.navbar-area.style-four .toggle-btn .icon-right:after,
+	.navbar-area.style-four .toggle-btn .icon-left:before,
+	.navbar-area.style-four .toggle-btn .icon-right:before,
+	.navbar-area.style-four .toggle-btn .icon-right,
+	.navbar-area.style-four .toggle-btn .icon-left {
+		background: #333333;
+	}
+	.navbar-area.style-four .toggle-btn.open .icon-right,
+	.navbar-area.style-four .toggle-btn.open .icon-left {
+		background: transparent;
+	}
+	.single-course-inner.style-media .details-inner {
+		width: -webkit-fill-available;
+	}
+	.single-course-inner.style-media .thumb {
+		flex: none;
+	}
+}
+@media all and (max-width: 767px) {
+	.single-course-inner .thumb img {
+		width: 100%;
+	}
+	.single-team-inner .thumb img {
+		width: 100%;
+	}
+	.single-blog-inner .thumb img {
+		width: 100%;
+	}
+	.about-thumb-wrap.about-left-thumb .img-3 {
+		right: 0px;
+	}
+	.navbar-area.style-four .navbar-area .nav-container {
+		margin: 0 20px;
+	}
+	.banner-area-4 .banner-inner {
+		padding: 90px 0 90px;
+	}
+}
+@media all and (max-width: 575px) {
+	.banner-inner .title,
+	.banner-area-2 .banner-inner .title {
+	    font-size: 36px;
+	}
+	.section-title .title {
+	    font-size: 32px;
+	}
+	.video-inner {
+	    min-height: 340px;
+	}
+	.single-testimonial-inner {
+	    padding: 35px 30px;
+	}
+	.subscribe-area-inner {
+	    padding: 30px 25px;
+	}
+	.subscribe-area-inner h3 {
+		font-size: 28px;
+	}
+	.single-testimonial-inner p {
+	    font-size: 16px;
+	}
+	.nav-right-part {
+	    margin-right: 35px;
+	}
+	.nav-right-part .btn {
+	    height: 38px;
+	    line-height: 39px;
+	    padding: 0 12px;
+	    font-size: 13px;
+	}
+	.breadcrumb-area .page-title {
+	    font-size: 36px;
+	}
+	.td-search-popup.active .search-form {
+	    width: 90%;
+	}
+	.about-thumb-wrap.about-left-thumb {
+	    padding-left: 0;
+	}
+	.back-to-top {
+	    right: 20px;
+	}
+	.banner-area-1 {
+	    padding: 250px 0 90px 0;
+	}
+	.banner-inner .sub-title {
+	    padding-left: 0;
+	}
+	.banner-inner .sub-title::after {
+	    display: none;
+	}
+	.banner-area-2 {
+	    padding: 170px 0 100px 0;
+	}
+	.single-course-inner.style-media {
+		display: block;
+	}
+	.single-course-inner.style-media .thumb {
+		border-radius: 7px;
+	}
+	.single-wcu-inner.style-media {
+		display: block;
+	}
+	.single-wcu-inner.style-media .thumb {
+		margin: 0 0 28px;
+	}
+	.single-blog-inner.style-yellow.style-four .details {
+		padding: 23px 20px 47px 20px; 
+	}
+	.single-blog-inner.style-yellow.style-four .blog-meta li {
+		font-size: 14px;
+	}
+	.single-blog-inner.style-yellow.style-four .details h4 {
+		font-size: 18px;
+	}
+}
+@media all and (max-width: 360px) {
+	.nav-right-part .btn {
+	    height: 36px;
+	    line-height: 37px;
+	    font-size: 12px;
+	}
+	.single-subscribe-inner .btn {
+	    padding: 0px 16px;
+	}
+	.single-subscribe-inner input {
+	    padding: 0 115px 0 16px;
+	}
+	.single-intro-inner {
+	    padding: 40px 20px 33px 20px;
+	}
+}
