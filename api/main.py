@@ -8,6 +8,7 @@ from api.dependencies import client
 from api.routes.jwt_auth import auth
 from api.routes.sbat import router as sbat_router
 from api.routes.subscribers import router as subscribers_router
+from api.routes.temporary import router as temp_router
 from api.webhooks.webhooks import webhooks
 
 
@@ -30,7 +31,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+app.include_router(temp_router)
 app.include_router(auth)
 app.include_router(subscribers_router)
 app.include_router(sbat_router)

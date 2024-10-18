@@ -24,3 +24,10 @@ class ReferenceCreate(ReferenceBase):
 
 class ReferenceRead(ReferenceBase):
     id: PyObjectId = Field(..., alias="_id")
+
+
+class ContactFormSubmission(BaseModel):
+    name: str = "missing"
+    email: str = "missing"
+    subject: str = "missing"
+    message: str = "missing"
