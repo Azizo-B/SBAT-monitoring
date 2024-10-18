@@ -50,6 +50,7 @@
         a.appendChild(r);
       })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
     </script>
+  </head>
   <body>
     <!-- preloader area start -->
     <div class="preloader" id="preloader">
@@ -129,14 +130,14 @@
                 <a href="contact.html">Contact Us</a>
               </li>
               <li>
-                <a href="login.html">Login</a>
+                <a href="login.html">Sign In</a>
               </li>
               <li>
-                <a href="register.html">Register</a>
+                <a href="register.html">Sign Up</a>
               </li>
               <li>
                 <a href="profile.html">Profile</a>
-            </li>
+              </li>
             </ul>
           </div>
         </div>
@@ -207,31 +208,30 @@
                   your any problem
                 </h3>
               </div>
-              <form class="mt-5 mt-md-4">
+              <form class="mt-5 mt-md-4" id="contactForm">
                 <div class="row">
                   <div class="col-lg-12">
                     <div class="single-input-inner">
-                      <input type="text" placeholder="Name" />
+                      <input type="text" id="name" placeholder="Name" required />
                     </div>
                   </div>
                   <div class="col-lg-6">
                     <div class="single-input-inner">
-                      <input type="text" placeholder="Email" />
-                    </div>
-                  </div>
-
-                  <div class="col-12">
-                    <div class="single-input-inner">
-                      <input type="text" placeholder="Subject" />
+                      <input type="email" id="email" placeholder="Email" required />
                     </div>
                   </div>
                   <div class="col-12">
                     <div class="single-input-inner">
-                      <textarea placeholder="Message"></textarea>
+                      <input type="text" id="subject" placeholder="Subject" required />
                     </div>
                   </div>
                   <div class="col-12">
-                    <button class="btn btn-base">Send Message</button>
+                    <div class="single-input-inner">
+                      <textarea id="message" placeholder="Message" required></textarea>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <button type="submit" class="btn btn-base">Send Message</button>
                   </div>
                 </div>
               </form>
@@ -334,7 +334,52 @@
 
     <!-- all plugins here -->
     <script src="assets/js/vendor.js"></script>
-       <!-- main js  -->
-    <script src="assets/js/main.js"></script> <script src="assets/js/nav.js"></script>
+    <!-- main js  -->
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/nav.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("contactForm");
+
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          // Gather input values
+          const name = document.getElementById("name").value;
+          const email = document.getElementById("email").value;
+          const subject = document.getElementById("subject").value;
+          const message = document.getElementById("message").value;
+
+          // Prepare data to send
+          const data = {
+            name: name,
+            email: email,
+            subject: subject,
+            message: message,
+          };
+
+          fetch("https://api.rijexamenmeldingen.be/contact", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Network response was not ok");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              alert("Message sent successfully!");
+              form.reset();
+            })
+            .catch((error) => {
+              alert("There was a problem sending your message.");
+            });
+        });
+      });
+    </script>
   </body>
 </html>
