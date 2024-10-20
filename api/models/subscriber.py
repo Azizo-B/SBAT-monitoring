@@ -1,3 +1,4 @@
+import uuid
 from datetime import UTC, datetime
 
 from pydantic import BaseModel, EmailStr, Field
@@ -21,6 +22,8 @@ class SubscriberBase(BaseModel):
     stripe_ids: list[str] = Field(default_factory=list)
     extra_details: dict = Field(default_factory=dict)
     monitoring_preferences: MonitorPreferences = MonitorPreferences()
+    is_verified: bool = False
+    verification_token: str = Field(default_factory=lambda: str(uuid.uuid4()))
 
 
 class SubscriberCreate(SubscriberBase):
