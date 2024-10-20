@@ -7,15 +7,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const link = item.querySelector('a');
 
         if (isLoggedIn) {
-            if (link.href.includes("login.html") || link.href.includes("register.html")) {
+            if (link.href.includes("login") || link.href.includes("register")) {
                 item.style.display = "none";
             }
 
-            if (link.href.includes("profile.html")) {
+            if (link.href.includes("profile")) {
                 item.style.display = "inline";
             }
         } else {
-            if (link.href.includes("profile.html")) {
+            if (link.href.includes("profile")) {
                 item.style.display = "none";
             }
         }

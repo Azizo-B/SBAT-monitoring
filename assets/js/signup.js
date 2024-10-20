@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 data = { detail: "Er is een onverwachte fout opgetreden." };
             }
             if (response.status === 200) {
-                window.location.href = "/login";
+                window.location.href = "/verify";
             } else {
                 const errorMessage =
                     typeof data.detail === "string"
