@@ -6,9 +6,8 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch(`https://api.rijexamenmeldingen.be/auth/verify?verification_token=${verificationToken}`, {
             method: 'GET'
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
+            .then(response => {
+                if (response.ok) {
                     setTimeout(function () {
                         window.location.href = '/login';
                     }, 500);
