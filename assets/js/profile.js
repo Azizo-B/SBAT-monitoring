@@ -1,8 +1,6 @@
 let subscriber_id;
-let disableButton;
 const token = localStorage.getItem("authToken");
 document.addEventListener("DOMContentLoaded", async function () {
-    disableButton = document.getElementById("disable-subscription");
 
 
     let hash = window.location.hash;
@@ -62,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             window.location.href = "https://discord.com/oauth2/authorize?client_id=1279427216706502750&response_type=token&redirect_uri=https%3A%2F%2Frijexamenmeldingen.be%2Fprofile&scope=identify+email";
         })
 
-        document.getElementById("sign-out").addEventListener("click", function () {
+        document.getElementById("logout").addEventListener("click", function () {
             localStorage.removeItem("authToken");
             window.location.href = `/`;
         });
@@ -75,9 +73,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             await patchDiscordUser({});
         });
 
-        disableButton.addEventListener("click", async function () {
-            window.location.href = "https://billing.stripe.com/p/login/9AQ5kV1gD4WP3XW288"
-        });
 
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
@@ -88,7 +83,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 function paintPage(data) {
     const discordButton = document.getElementById("discord-login-button");
     const telegramButton = document.getElementById("telegram-login-button");
-    const emailCheckbox = document.querySelector("input[name='email_notifications']");
     const unlinkTelegramButton = document.getElementById("unlink-telegram");
     const unlinkDiscordButton = document.getElementById("unlink-discord");
 
@@ -102,49 +96,61 @@ function paintPage(data) {
         unlinkTelegramButton.style.display = "inline-block";
     }
 
-    document.getElementById("user-name").textContent = data.name || "Onbekend";
-    document.getElementById("user-email").textContent =
+    document.getElementById("name").value = data.name || "Onbekend";
+    document.getElementById("email").value =
         data.email || "Onbekend";
-    document.getElementById("user-phone").textContent =
+    document.getElementById("phone").value =
         data.phone || "Niet opgegeven";
-    document.getElementById("user-telegram").textContent =
+    document.getElementById("telegram").value =
         `${data.telegram_user?.first_name || "Onbekend"} ${data.telegram_user?.last_name || ""}`;
-    document.getElementById("user-discord").textContent = `${data.discord_user?.username || "Onbekend"}`;
+    document.getElementById("discord").value = `${data.discord_user?.username || "Onbekend"}`;
     const subscriptionStatus =
         data.is_subscription_active ? "Actief" : "Niet Actief";
-    document.getElementById("subscription-status").textContent =
-        subscriptionStatus;
 
-    data.monitoring_preferences.license_types.forEach((type) => {
-        document.querySelector(
-            `input[name='license_types'][value='${type}']`
-        ).checked = true;
-    });
-    data.monitoring_preferences.exam_center_ids.forEach((id) => {
-        document.querySelector(
-            `input[name='exam_center_ids'][value='${id}']`
-        ).checked = true;
-    });
-
-    if (emailCheckbox) {
-        emailCheckbox.checked = data.wants_emails || false;
-    }
+    populatePreferences(data)
 
     if (subscriptionStatus === "Actief") {
-        disableButton.style.display = "inline-block";
         document.getElementById("submit-preferences").style.display = ""
         document.getElementById("activate-subscription").disabled = true
+    } else {
+        document.getElementById("subscription-status").textContent =
+            subscriptionStatus;
+    }
+}
+function populatePreferences(data) {
+    // License types
+    const licenseSelect = document.getElementById("Rijbewijzen");
+    Array.from(licenseSelect.options).forEach((option) => {
+        if (data.monitoring_preferences.license_types.includes(option.value)) {
+            option.selected = true;
+        }
+    });
+
+    // Exam centers
+    const examCenterSelect = document.getElementById("Examencentra");
+    Array.from(examCenterSelect.options).forEach((option) => {
+        if (data.monitoring_preferences.exam_center_ids.includes(option.value)) {
+            option.selected = true;
+        }
+    });
+
+    // Email notifications checkbox
+    const emailCheckbox = document.getElementById("emailNotificationCheckbox");
+    if (emailCheckbox) {
+        emailCheckbox.checked = data.wants_emails || false;
     }
 }
 
 async function submitPreferences(token) {
     const selectedLicenseTypes = Array.from(
-        document.querySelectorAll("input[name='license_types']:checked")
-    ).map((cb) => cb.value);
+        document.querySelectorAll("#Rijbewijzen option:checked")
+    ).map((option) => option.value);
+
     const selectedExamCenters = Array.from(
-        document.querySelectorAll("input[name='exam_center_ids']:checked")
-    ).map((cb) => cb.value);
-    const wantsEmails = document.querySelector("input[name='email_notifications']").checked;
+        document.querySelectorAll("#Examencentra option:checked")
+    ).map((option) => option.value);
+
+    const wantsEmails = document.getElementById("emailNotificationCheckbox").checked;
 
     try {
         const saveResponse = await fetch(
