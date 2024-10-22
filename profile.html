@@ -1,247 +1,289 @@
 <!DOCTYPE html>
-<html lang="nl">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <meta
-    name="description"
-    content="Blijf op de hoogte van beschikbare rijexamenplekken in Sint-Denijs-Westrem, Eeklo, Brakel, Erembodegem en Sint-Niklaas via e-mail, Telegram of Discord met onze meldingsservice."
-  />
-  <meta
-    name="keywords"
-    content="sbat, rijbewijs, rijbewijs B, praktijk examen, praktijkexamen, rijbewijs B praktijkexamen, rijexamen, rijbewijs meldingen, rijbewijs e-mail meldingen, rijbewijs Telegram meldingen, rijbewijs Discord meldingen, rijexamens, beschikbaarheid, Sint-Denijs-Westrem, Eeklo, Brakel, Erembodegem, Sint-Niklaas, autokeuring, theorie examen B"
-  />
-  <link rel="canonical" href="https://rijexamenmeldingen.be/profile" />
-
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Rijexamenmeldingen</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="icon" href="assets/img/favicon.jpg" sizes="20x20" type="image/jpg" />
-
-  <meta property="og:title" content="Rijexamenmeldingen" />
-  <meta
-    property="og:description"
-    content="Blijf op de hoogte van beschikbare rijexamenplekken in Sint-Denijs-Westrem, Eeklo, Brakel, Erembodegem en Sint-Niklaas via e-mail, Telegram of Discord met onze meldingsservice."
-  />
-  <meta property="og:image" content="https://rijexamenmeldingen.be/assets/img/logo-1024.png" />
-  <meta property="og:url" content="https://rijexamenmeldingen.be" />
-  <meta property="og:type" content="website" />
-
-  <!-- Stylesheet -->
-  <link rel="stylesheet" href="assets/css/vendor.css" />
-  <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="stylesheet" href="assets/css/responsive.css" />
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <!-- Hotjar Tracking Code for https://rijexamenmeldingen.be -->
-  <script>
-    (function (h, o, t, j, a, r) {
-      h.hj =
-        h.hj ||
-        function () {
-          (h.hj.q = h.hj.q || []).push(arguments);
-        };
-      h._hjSettings = { hjid: 5114847, hjsv: 6 };
-      a = o.getElementsByTagName("head")[0];
-      r = o.createElement("script");
-      r.async = 1;
-      r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
-      a.appendChild(r);
-    })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
-  </script>
+<html lang="en">
   <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C6KMPT20YQ"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-
-      gtag("config", "G-C6KMPT20YQ");
-    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile Page</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/habibmhamadi/multi-select-tag@3.1.0/dist/css/multi-select-tag.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/habibmhamadi/multi-select-tag@3.1.0/dist/js/multi-select-tag.js"></script>
+    <script src="https://unpkg.com/multiselect-tag@latest/dist/multiselect-tag.min.js"></script>
     <style>
-      .top-buttons {
-        width: 100%;
-        display: flex;
-        position: fixed;
-        top: 20px;
-        justify-content: space-between;
-      }
-      .back-arrow {
-        font-size: 20px;
-        color: white !important ;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        transition: color 0.3s ease;
-        background-color: #333;
-        border-radius: 3px;
-        padding: 5px;
-      }
-
-      .back-arrow:hover {
-        color: #007bff;
-      }
-      #discord-login-button {
-        background-color: #7289da;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        font-size: 16px;
-        cursor: pointer;
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-      }
-
-      #discord-login-button img {
-        width: 20px;
-        height: 20px;
-        margin-right: 8px;
-      }
-
-      #discord-login-button:hover {
-        background-color: #5a6ea9;
-      }
+      html,
       body {
-        font-family: "Arial", sans-serif;
         margin: 0;
         padding: 0;
-        color: #333;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        background-color: #333;
+        font-family: Arial, sans-serif;
+        background-color: #f0f4f8;
       }
 
-      .profile-container {
-        width: 100%;
-        max-width: 600px;
-        background-color: #fff;
+      .container {
+        background-color: white;
+        border-radius: 20px;
         padding: 20px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
+        width: 100%;
+        height: 100%;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        box-sizing: border-box;
       }
 
-      .profile-container h2 {
-        text-align: center;
-        margin-bottom: 20px;
+      .profile-header {
+        background-color: #333333;
+        color: white;
+        position: relative;
+        border-radius: 20px 20px 0 0;
+        padding-bottom: 30px; /* Added padding to avoid overlap with the image */
       }
 
-      .profile-container .profile-info {
-        margin-bottom: 20px;
-      }
-
-      .profile-container .profile-info p {
-        margin: 10px 0;
-        font-size: 1rem;
-      }
-
-      .profile-container .profile-info p span {
-        font-weight: bold;
-      }
-
-      .profile-container .preferences {
-        margin: 20px 0;
-      }
-
-      .profile-container .preferences label {
+      .header {
+        display: flex;
+        align-items: center;
         margin-bottom: 10px;
       }
 
-      .checkbox-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-
-      .profile-container button {
-        padding: 10px;
-        background-color: #ff5733;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        margin-top: 10px;
-        flex: 1;
-        text-align: center;
-      }
-
-      .profile-container button:hover {
-        background-color: #e74c3c;
-      }
-
-      .button-group {
-        display: flex;
-        justify-content: space-between;
-      }
-
-      .button-group button {
+      .header i {
+        font-size: 20px;
         margin-right: 10px;
       }
 
-      .button-group button:last-child {
-        margin-right: 0;
+      .header h1 {
+        font-size: 20px;
+        margin: 0;
       }
 
-      .profile-container button:disabled {
-        background-color: #d3d3d3;
-        cursor: not-allowed;
+      .logout-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: white;
+        font-size: 14px;
+        z-index: 100;
+        cursor: pointer;
       }
 
-      .profile-container button:disabled:hover {
-        background-color: #d3d3d3;
+      .back-btn {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #333333; /* Background color for the back button */
+        color: white;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        z-index: 100;
+      }
+
+      .back-btn i {
+        margin-right: 5px; /* Space between icon and text */
+      }
+
+      .profile-pic {
+        display: flex;
+        justify-content: center;
+        margin-bottom: -40px; /* Shift the image down */
+        position: relative;
+      }
+
+      .profile-pic img {
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        border: 4px solid white; /* Border color */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow */
+        margin-top: 90px; /* Adjust margin to keep it out of the header */
+      }
+
+      .edit-profile-btn {
+        display: block;
+        margin-top: 60px;
+        font-weight: 700;
+        background-color: #333333;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 14px;
+        margin-left: auto; /* Center the button */
+        margin-right: auto; /* Center the button */
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+        padding: 0 15px;
+        margin-top: 20px; /* Add space between input fields and the top */
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        font-size: 14px;
+        box-sizing: border-box;
+        background-color: #e0e0e0; /* Light gray background */
+        color: black; /* Dimmed text color */
+        cursor: not-allowed; /* Shows a 'not-allowed' cursor */
+        opacity: 0.65; /* Makes it appear less prominent */
+      }
+
+      .continue-btn {
+        width: 100%;
+        padding: 10px;
+        background-color: black;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        margin-top: 20px;
+        padding: 0 15px;
+      }
+
+      .action-buttons .btn {
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: none;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .btn {
+        background-color: #333333;
+        color: white;
+      }
+
+      .btn.secondary {
+        background-color: #333333;
+      }
+
+      .unlink-btn {
+        margin-top: 10px;
+        background-color: #333333;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+      }
+
+      .dropdown-section {
+        margin-top: 15px;
+        padding: 0 15px;
+        display: none;
+      }
+
+      .dropdown {
+        margin-top: 5px;
+      }
+
+      .badge {
+        background-color: #333333;
+        color: white;
+        border-radius: 10px;
+        padding: 5px 10px;
+        font-size: 12px;
+        display: inline-block;
+        margin-bottom: 10px;
+      }
+      .discord-ui-button {
+        margin-top: 0.4rem;
+        display: flex;
+        overflow: hidden;
+        position: relative;
+        padding: 0.875rem 72px 0.875rem 1.75rem;
+        background-color: rgba(88, 101, 242, 1);
+        background-image: linear-gradient(to top right, rgb(46, 56, 175), rgb(82, 93, 218));
+        color: #ffffff;
+        font-weight: 700;
+        text-align: center;
+        text-transform: uppercase;
+        vertical-align: middle;
+        align-items: center;
+        border-radius: 0.5rem;
+        gap: 0.75rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border: none;
+        transition: all 0.6s ease;
+        cursor: pointer;
+      }
+
+      .discord-ui-button span {
+        background-color: rgb(82, 93, 218);
+        display: grid;
+        position: absolute;
+        right: 0;
+        place-items: center;
+        width: 3rem;
+        height: 100%;
+      }
+
+      .discord-ui-button span svg {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+
+      .discord-ui-button:hover {
+        box-shadow: 0 4px 30px rgba(4, 175, 255, 0.1), 0 2px 30px rgba(11, 158, 255, 0.06);
       }
     </style>
   </head>
-  <body>
-    <div class="top-buttons">
-      <a href="/" class="back-arrow"
-        ><i style="margin-right: 8px; padding-left: 3px" class="fas fa-arrow-left"></i> Terug</a
-      >
-      <a id="sign-out" class="back-arrow"
-        >Afmelden <i style="margin-left: 8px; padding-right: 3px" class="fa fa-sign-out"></i
-      ></a>
-    </div>
 
-    <div class="profile-container">
-      <h2>Profiel</h2>
-      <div class="profile-info">
-        <p><span>Naam:</span> <span id="user-name"></span></p>
-        <p>
-          <span>E-mailadres:</span>
-          <span id="user-email"></span>
-        </p>
-        <p><span>Telefoon:</span> <span id="user-phone"></span></p>
-        <p>
-          <span>Telegram Gebruikersnaam:</span>
-          <span id="user-telegram"></span>
-          <button id="unlink-telegram" style="display: none">Unlink Telegram</button>
-        </p>
-        <p>
-          <span>Discord Gebruikersnaam:</span>
-          <span id="user-discord"></span>
-          <button id="unlink-discord" style="display: none">Unlink Discord</button>
-        </p>
-        <p>
-          <span>Abonnementsstatus:</span>
-          <span id="subscription-status">Actief</span>
-          <a
-            id="disable-subscription"
-            style="
-              display: none;
-              cursor: pointer;
-              font-size: 0.9em;
-              color: #007bff;
-              text-decoration: underline;
-              margin-left: 10px;
-            "
-            >Annuleren</a
-          >
-        </p>
-        <p>
+  <body>
+    <div class="container">
+      <div class="profile-header">
+        <p class="back-btn"><i class="fas fa-arrow-left"></i> Back</p>
+        <p id="logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</p>
+
+        <div class="profile-pic">
+          <img
+            alt="Profile picture of a person wearing a black jacket and a black cap"
+            height="100"
+            src="/assets/img/profile.jpg"
+            width="100"
+          />
+        </div>
+        <button class="edit-profile-btn">Profile</button>
+        <!-- Positioned below the image -->
+      </div>
+
+      <div style="background-color: white">
+        <div class="form-group">
+          <input id="name" disabled placeholder="Naam" type="text" />
+        </div>
+        <div class="form-group">
+          <input id="email" disabled placeholder="E-mailadres" type="email" />
+        </div>
+        <div class="form-group">
+          <input id="phone" disabled placeholder="Telefoon" type="number" />
+        </div>
+        <div class="form-group">
+          <label>Abonnementstatus</label>
+          <input disabled id="subscription-status" value="Actief" />
+        </div>
+        <div class="form-group">
+          <label for="telegram">Telegram Gebruikersnaam</label>
+          <input id="telegram" disabled placeholder="Telegram Gebruikersnaam" type="text" />
           <span id="telegram-login-button">
             <script
               async
@@ -252,43 +294,73 @@
               data-request-access="write"
             ></script>
           </span>
-          <span style="display: inline-block; margin-right: 1.5rem">
-            <button id="discord-login-button">
-              <img
-                src="https://cdn.iconscout.com/icon/free/png-256/discord-3-569463.png"
-                alt="Discord Logo"
-                style="width: 20px; margin-right: 8px"
-              />
-              Login with Discord
+          <button style="display: none" id="unlink-telegram" class="unlink-btn">Unlink Telegram</button>
+        </div>
+        <div class="form-group">
+          <label for="discord">Discord Gebruikersnaam</label>
+          <input id="discord" disabled placeholder="Discord Gebruikersnaam" type="text" />
+          <span id="discord-login-button" style="display: inline-block; margin-right: 1.5rem">
+            <button class="discord-ui-button">
+              Link your Discord
+              <span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-discord"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.041.041 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.051.051 0 0 0-.018-.011 8.875 8.875 0 0 1-1.248-.595.05.05 0 0 1-.02-.066.051.051 0 0 1 .015-.019c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.052.052 0 0 1 .053.007c.08.066.164.132.248.195a.051.051 0 0 1-.004.085 8.254 8.254 0 0 1-1.249.594.05.05 0 0 0-.03.03.052.052 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"
+                  ></path>
+                </svg>
+              </span>
             </button>
           </span>
-        </p>
-      </div>
-      <div class="preferences">
-        <p><span>Rijbewijzen:</span></p>
-        <div class="checkbox-container">
-          <label><input type="checkbox" name="license_types" value="B" /> B</label>
-          <label><input type="checkbox" name="license_types" value="AM" /> AM</label>
+          <button style="display: none" id="unlink-discord" class="unlink-btn">Unlink Discord</button>
         </div>
-        <p><span>Examencentra:</span></p>
-        <div class="checkbox-container">
-          <label><input type="checkbox" name="exam_center_ids" value="1" /> Sint-Denijs-Westrem</label>
-          <label><input type="checkbox" name="exam_center_ids" value="7" /> Brakel</label>
-          <label><input type="checkbox" name="exam_center_ids" value="8" /> Eeklo</label>
-          <label><input type="checkbox" name="exam_center_ids" value="9" /> Erembodegem</label>
-          <label><input type="checkbox" name="exam_center_ids" value="10" /> Sint-Niklaas</label>
+
+        <div class="dropdown-section">
+          <h3>Rijbewijzen</h3>
+          <div class="dropdown">
+            <span id="rijbewijzen-count" class="badge">0 selected</span>
+            <select name="Rijbewijzen" id="Rijbewijzen" multiple>
+              <option value="B">B</option>
+              <option value="AM">AM</option>
+            </select>
+          </div>
         </div>
-        <p><span>Meldingen via e-mail:</span></p>
-        <div class="checkbox-container">
-          <label><input type="checkbox" name="email_notifications" value="true" /> Ik wil meldingen via e-mail</label>
+
+        <div class="dropdown-section">
+          <h3>Examencentra</h3>
+          <div class="dropdown">
+            <span id="examencentra-count" class="badge">0 selected</span>
+            <select name="countries" id="Examencentra" multiple>
+              <option value="1">Sint-Denijs-Westrem</option>
+              <option value="7">Brakel</option>
+              <option value="8">Eeklo</option>
+              <option value="9">Erembodegem</option>
+              <option value="10">Sint-Niklaas</option>
+            </select>
+          </div>
         </div>
-      </div>
-      <div class="button-group">
-        <button style="display: none" id="submit-preferences">Voorkeuren Opslaan</button>
-        <button id="activate-subscription">Activeer Abonnement</button>
+
+        <div class="dropdown-section">
+          <h3>Meldingen via e-mail</h3>
+          <div class="dropdown">
+            <div class="dropdown-list">
+              <label><input id="emailNotificationCheckbox" type="checkbox" />Ik wil meldingen via e-mail</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button id="submit-preferences" style="display: none" class="btn">Voorkeuren Opslaan</button>
+          <button id="subscription-btn" class="btn secondary">Activeer Abonnement</button>
+        </div>
       </div>
     </div>
-
     <script src="/assets/js/profile.js"></script>
   </body>
 </html>
